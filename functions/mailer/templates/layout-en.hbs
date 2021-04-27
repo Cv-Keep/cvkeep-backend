@@ -1,0 +1,51 @@
+{{#unless isHtml}}
+
+{{brandName}}
+__________________________________________
+
+{{else}}
+
+  <!DOCTYPE HTML>
+  <html>
+  <body>
+    <table width="600px" align="center" border="0" cellpadding="30px" cellspacing="0" style="font-family: Helvetica">
+      <tr>
+        <td align="center" style="background-color:#fb7988;color:#ffffff; font-weight: 700">
+          {{brandName}}
+        </td>
+      </tr>
+      <tr>
+        <td bgcolor="#FFF" align="left">
+          <font color="#5E6878">
+
+{{/unless}}
+
+  {{> content}}
+				
+{{#unless isHtml}}
+
+__________________________________________
+
+This is an automatic E-Mail, please dont answer.
+{{brandName}} {{year}} © All rights reserved.
+
+{{else}}
+
+        </font>
+			</td>
+		</tr>
+		<tr>
+			<td bgcolor="#FFF" align="center">
+				<font color="#5E6878">
+					<small>
+						<p>This is an automatic E-Mail, please dont answer..</p>
+						<p>{{brandName}} {{year}} © All rights reserved</p>
+					</small>
+				</font>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
+
+{{/unless}}
