@@ -1,4 +1,5 @@
 const __db = require(`${__basedir}/database/`);
+const __ngrams = require('./ngrams.js');
 const __utils = require('./utils.js');
 
 module.exports = {
@@ -47,6 +48,8 @@ module.exports = {
 			delete data._id;
 
 			__db.curriculum.update({ email: email }, { $set: { ...data } }, options, (error, status) => {
+				__ngrams.updateCvSearchIndex(email);
+
 				(!error && status.ok) ? resolve(status) : reject(error || `Error: DB Query Status: ${status.ok}`);
 			});
 		});

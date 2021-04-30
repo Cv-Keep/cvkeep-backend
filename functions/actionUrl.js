@@ -14,12 +14,13 @@ module.exports = {
    *    args: Array,  // array with arguments to pass on run
    * }
    *
-   * This function will return am URL that executes you method with
-   * you given arguments when requested. The URL runs only once.
+   * This function will return an URL that executes you method with
+   * your given arguments when requested. The URL runs only once.
+	 * The passed method must exists in this file, see the end of file.
    *
    * @param {String} userEmail
    * @param {String} method
-   * @param {Array} args
+   * @param {Array|Object} args
    *
    * @return {String} hash
    */

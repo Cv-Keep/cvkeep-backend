@@ -2,7 +2,7 @@ const jwt = require('./jwt');
 const config = require(`${__basedir}/config`);
 
 const __user = require('./user.js');
-const __log = require('./debug.js');
+const __log = require('./log.js');
 
 module.exports = {
 	async signIn(credentials, res) {

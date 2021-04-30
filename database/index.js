@@ -14,6 +14,7 @@ db.collection('credentials');
 db.collection('curriculum');
 db.collection('forgotpass');
 db.collection('visitors');
+db.collection('cvSearchIndex');
 
 /** events */
 

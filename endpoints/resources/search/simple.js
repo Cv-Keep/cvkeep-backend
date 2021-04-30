@@ -1,26 +1,40 @@
 const __db = require(`${__basedir}/database/`);
+const { __ngrams } = require(`${__basedir}/functions/`);
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
 	const subject = req.query.subject || '';
-	const terms = subject.split(' ').join(',');
+	const search = __ngrams.generate(subject).join(' ');
 
-	__db.curriculum.createIndex({ subject: '*' });
+	__db.cvSearchIndex.createIndex({ 'ngrams': 'text' });
 
-	__db.curriculum.aggregate(
-		[
-			{
-				$match: {
+	const findings = await new Promise((resolve, reject) => {
+		const cb = (err, docs) => err ? reject(err) : resolve(docs);
+
+		__db.collection('cvSearchIndex')
+			.find(
+				{
 					$text: {
-						$search: 'nome',
+						$search: search,
+						$caseSensitive: false,
+						$diacriticSensitive: false,
 					},
 				},
-			},
-		],
+				{
+					score: {
+						$meta: 'textScore',
+					},
+				},
+			)
+			.sort(
+				{
+					score: {
+						$meta: 'textScore',
+					},
+				},
+				cb,
+			);
+	});
 
-		(done, error) => {
-			console.log(done);
-		},
-	);
 
-	res.send(terms);
+	res.send(findings);
 };
