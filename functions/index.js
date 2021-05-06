@@ -7,6 +7,7 @@ module.exports = {
 	__email: require('./email.js'),
 	__ngrams: require('./ngrams.js'),
 	__badwords: require('./badwords'),
+	__cvNgrams: require('./cvNgrams.js'),
 	__actionUrl: require('./actionUrl.js'),
 	__userFiles: require('./userFiles.js'),
 	__encryption: require('./encryption.js'),

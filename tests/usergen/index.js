@@ -14,10 +14,14 @@
  * REMENBER: NEVER EVER RUN THIS IN PRODUCTION, NEVER.
  */
 
+const path = require('path');
 const args = process.argv.slice(2, 4);
 const dn = args[0];
 const qt = args[1];
 const pressAnyKey = require('press-any-key');
+
+global.__basedir = path.resolve('');
+const cvNgrams = require('../../functions/cvNgrams.js');
 
 if (!dn || !qt) {
   console.log('\nUsage: npm run usergen {db_name} {user_amount}\nWarning: This command will drop the database\n');
@@ -53,11 +57,14 @@ pressAnyKey()
       const cred = JSON.parse(item.cred);
       const cv = JSON.parse(item.cv);
 
+      cv.basics.role = 'Heres the role';
       cv.basics.fullname = cred.username;
       console.log(`Creating account "${cred.username}"`);
 
       db.credentials.save(cred, () => {
-        db.curriculum.save(cv, () => {
+        db.curriculum.save(cv, async () => {
+          await cvNgrams.updateCvSearchIndex(cv.email).catch(console.error);
+
           resolve();
         });
       });

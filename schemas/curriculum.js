@@ -1,6 +1,7 @@
 module.exports = {
 	views: 0,
 	lang: '',
+	email: '',
 	username: '',
 	canEdit: false,
 	editing: false,
