@@ -2,8 +2,8 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const config = require(`${__basedir}/config`);
 
-const PRIVATE_KEY = fs.readFileSync(__dirname+'/rsa/private.key', 'utf8');
-const PUBLIC_KEY = fs.readFileSync(__dirname+'/rsa/public.key', 'utf8');
+const PUBLIC_KEY = fs.readFileSync(config.rsa.public, 'utf8');
+const PRIVATE_KEY = fs.readFileSync(config.rsa.private, 'utf8');
 
 const JWT_OPTIONS = {
 	issuer: `${config.brandName} Auth Sys`,

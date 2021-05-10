@@ -23,6 +23,11 @@ module.exports = {
 	noReplyEmailAddress: env.NOREPLY_EMAIL_ADDRESS,
 	uploadMaxFileSizeMB: Number(env.UPLOAD_MAX_FILE_SIZE_MB),
 
+	rsa: {
+		public: path.resolve(__dirname, '..', env.RSA_PUBLIC_KEY),
+		private: path.resolve(__dirname, '..', env.RSA_PRIVATE_KEY),
+	},
+
 	social_login: {
 		github: {
 			client_id: env.SOCIAL_AUTH_GITHUB_CLIENT_ID,
