@@ -10,7 +10,21 @@ module.exports = async (req, res) => {
 	const page = (Number(req.query.page) || 0);
 	const offset = Number(req.query.offset) || 100;
 
-	// index
+	// used for aggregate and count
+
+	const match = {
+		active: true,
+		searchable: true,
+		passwordProtected: false,
+
+		$text: {
+			$search: search,
+			$caseSensitive: false,
+			$diacriticSensitive: false,
+		},
+	};
+
+	// create text index
 
 	await __db.cvSearchIndex.createIndex(
 		{
@@ -26,23 +40,14 @@ module.exports = async (req, res) => {
 		},
 	);
 
-	// search results
+	// search for results
 
 	const result = await new Promise((resolve, reject) => {
 		const cb = (err, docs) => err ? reject(err) : resolve(docs);
 
 		__db.cvSearchIndex.aggregate([
 			{
-				$match: {
-					locked: false,
-					searchable: true,
-
-					$text: {
-						$search: search,
-						$caseSensitive: false,
-						$diacriticSensitive: false,
-					},
-				},
+				$match: match,
 			},
 			{
 				$sort: {
@@ -84,15 +89,7 @@ module.exports = async (req, res) => {
 		const cb = (err, docs) => err ? reject(err) : resolve(docs);
 
 		__db.cvSearchIndex
-			.find({
-				locked: false,
-
-				$text: {
-					$search: search,
-					$caseSensitive: false,
-					$diacriticSensitive: false,
-				},
-			})
+			.find(match)
 			.count(cb);
 	});
 

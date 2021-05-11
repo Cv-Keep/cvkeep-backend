@@ -6,7 +6,6 @@ module.exports = {
 	lang: '',
 	logged: false,
 	active: false,
-	banned: false,
 	pendingUrlActions: {},
 	privacy: {
 		allowPublicMessages: true,

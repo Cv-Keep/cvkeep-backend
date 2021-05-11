@@ -18,7 +18,7 @@ module.exports = {
 		delete credentials.password;
 		delete credentials.confirm_password;
 
-		if (!credentials.active && !credentials.banned) {
+		if (!credentials.active) {
 			await __user.reactivate(credentials.email);
 		}
 

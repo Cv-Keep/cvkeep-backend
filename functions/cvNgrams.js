@@ -1,5 +1,6 @@
 const __db = require(`${__basedir}/database/`);
 const __ngrams = require('./ngrams.js');
+const __user = require('./user.js');
 
 module.exports = {
 	_flatObjectStrings(obj) {
@@ -44,8 +45,9 @@ module.exports = {
 		return this._flatObjectStrings(rawTextIndexes);
 	},
 
-	updateCvSearchIndex(userEmail) {
+	async updateCvSearchIndex(userEmail) {
 		const options = { upsert: true, multi: true };
+		const user = await __user.get({ email: userEmail });
 
 		return new Promise((resolve, reject) => {
 			__db.curriculum.findOne({ email: userEmail }, (err, data) => {
@@ -54,8 +56,10 @@ module.exports = {
 				const toInsert = {
 					cvId: data._id,
 					email: data.email,
-					locked: data.locked,
+					active: user.active,
 					username: data.username,
+					searchable: data.searchable || false,
+					passwordProtected: data.passwordProtected,
 					ngrams: this._generateCvNgrams(data).join(' '),
 					rawtext: this._generateCvRawText(data).join(' '),
 				};

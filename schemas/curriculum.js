@@ -3,7 +3,7 @@ module.exports = {
 	lang: '',
 	email: '',
 	username: '',
-	searchable: '',
+	searchable: true,
 	canEdit: false,
 	editing: false,
 	color: '#4ecdc4',
