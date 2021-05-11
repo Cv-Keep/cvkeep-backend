@@ -35,6 +35,7 @@ module.exports = async (req, res) => {
 			{
 				$match: {
 					locked: false,
+					searchable: true,
 
 					$text: {
 						$search: search,

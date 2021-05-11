@@ -58,7 +58,7 @@ route('all', '/curriculum/get', 'curriculum/get.js');
 // search
 
 route('get', '/search/simple', 'search/simple.js');
-route('get', '/search/advanced', 'search/advanced.js');
+route('logged', '/search/searchable', 'search/searchable.js');
 
 // general purpose
 
