@@ -16,12 +16,12 @@ module.exports = {
 	defaultLang: env.DEFAULT_LANG,
 	jwtCookieName: env.JWT_COOKIE_NAME,
 	mailer: JSON.parse(env.MAILER_CONFIG),
-	mongo: JSON.parse(env.DATABASE_CONFIG),
 	appBaseDir: path.resolve(__dirname, '..'),
 	reportEmailAddress: env.REPORT_EMAIL_ADDRESS,
 	noReplyEmailAddress: env.NOREPLY_EMAIL_ADDRESS,
 	port: Number(env.PORT) || process.env.PORT || 5000,
 	uploadMaxFileSizeMB: Number(env.UPLOAD_MAX_FILE_SIZE_MB),
+	mongo: JSON.parse(env.DATABASE_CONFIG) || process.env.MONGODB_URI,
 
 	rsa: {
 		public: path.resolve(__dirname, '..', env.RSA_PUBLIC_KEY),

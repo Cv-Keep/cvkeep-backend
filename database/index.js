@@ -4,7 +4,11 @@ const { __debug } = require('../functions/');
 
 /** db instance **/
 
-const db = mongojs(`${config.mongo.url}/${config.mongo.database}`);
+const mongoUrl = typeof config.mongo === 'string' ? 
+	config.mongo :
+	`${config.mongo.url}/${config.mongo.database}`;
+
+const db = mongojs(mongoUrl);
 
 /** collections **/
 
