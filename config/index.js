@@ -9,7 +9,6 @@ console.log(`Environment: "${stage}". Using .env file "${envPath}"`);
 module.exports = {
 	stage: stage,
 	base: env.BASE,
-	port: Number(env.PORT),
 	secret: env.APP_SECRET,
 	clientURL: env.CLIENT_URL,
 	serverURL: env.SERVER_URL,
@@ -21,6 +20,7 @@ module.exports = {
 	appBaseDir: path.resolve(__dirname, '..'),
 	reportEmailAddress: env.REPORT_EMAIL_ADDRESS,
 	noReplyEmailAddress: env.NOREPLY_EMAIL_ADDRESS,
+	port: Number(env.PORT) || process.env.PORT || 5000,
 	uploadMaxFileSizeMB: Number(env.UPLOAD_MAX_FILE_SIZE_MB),
 
 	rsa: {
