@@ -9,7 +9,8 @@
     "test:debug": "DEBUG=express:* jest --detectOpenHandles --forceExit",
     "serve": "npm run lint && NODE_ENV=$npm_config_stage nodemon index.js",
     "serve:debug": "DEBUG=express:* npm run serve",
-    "usergen": "node tests/usergen/index.js"
+    "usergen": "node tests/usergen/index.js",
+    "heroku:create": "sh ./sh/heroku-create.sh"
   },
   "author": "Felippe Regazio",
   "license": "ISC",
