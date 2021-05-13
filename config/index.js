@@ -10,6 +10,7 @@ module.exports = {
 	stage: stage,
 	base: env.BASE,
 	secret: env.APP_SECRET,
+	mongoURI: env.MONGODB_URI,
 	clientURL: env.CLIENT_URL,
 	serverURL: env.SERVER_URL,
 	brandName: env.BRAND_NAME,
@@ -21,7 +22,6 @@ module.exports = {
 	noReplyEmailAddress: env.NOREPLY_EMAIL_ADDRESS,
 	port: Number(env.PORT) || process.env.PORT || 5000,
 	uploadMaxFileSizeMB: Number(env.UPLOAD_MAX_FILE_SIZE_MB),
-	mongo: JSON.parse(env.DATABASE_CONFIG) || process.env.MONGODB_URI,
 
 	rsa: {
 		public: path.resolve(__dirname, '..', env.RSA_PUBLIC_KEY),

@@ -35,12 +35,7 @@ pressAnyKey()
   .then(async () => {
     const mongojs = require('mongojs');
     const config = require('../../config/');
-
-    const mongoUrl = typeof config.mongo === 'string' ? 
-    config.mongo :
-    `${config.mongo.url}/${dn}`;
-            
-    const db = mongojs(mongoUrl);
+    const db = mongojs(config.mongoURI);
 
     db.dropDatabase();
 
