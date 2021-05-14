@@ -20,6 +20,9 @@ const app = express();
 const routes = require('./endpoints/routes.js');
 
 app.use(cors({
+	credentials: true,
+	exposedHeaders: 'Access-Control-Allow-Origin',
+	
 	origin: (origin, callback) => {
 		const allowedOrigins = [
 			config.clientURL,
@@ -37,8 +40,6 @@ app.use(cors({
 
 		return callback(null, { origin: true });
 	},
-
-	credentials: true,
 }));
 
 app.use(helmet());
