@@ -37,13 +37,11 @@ app.use(cors({
 			allowedOrigins.push(...extraOrigins);
 		}
 
-		console.log(origin, originBase, allowedOrigins);
-
 		if (origin && !allowedOrigins.includes(originBase)) {
 			return callback(new Error('Origin blocked by CORS policy.'), false);
 		}
 
-		return callback(null, { origin });
+		return callback(null, origin);
 	},
 }));
 
