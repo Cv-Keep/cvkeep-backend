@@ -19,30 +19,15 @@ const __db = require('./database/');
 const app = express();
 const routes = require('./endpoints/routes.js');
 
-app.use(cors({
-	credentials: true,
-	origin: (origin, callback) => {
-		const originBase = origin ? new URL(origin).origin : '';
 
-		const allowedOrigins = [config.clientURL, config.serverURL]
-			.map(item => new URL(item).origin);
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+	
+  next();
+});
 
-		if (config.extraAllowedOrigins) {
-			const extraOrigins = config.extraAllowedOrigins
-				.split(' ')
-				.map(item => new URL(item).origin);
-
-			allowedOrigins.push(...extraOrigins);
-		}
-
-		if (origin && !allowedOrigins.includes(originBase)) {
-			return callback(new Error('Origin blocked by CORS policy.'), false);
-		}
-
-		return callback(null, origin);
-	},
-}));
-
+app.use(helmet());
 app.use(bearerToken());
 app.use(i18n.middleware);
 app.use('/public', express.static(`${__dirname}/public`));
