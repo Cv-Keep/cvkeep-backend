@@ -7,7 +7,7 @@ const {
 	__cv,
 	__user,
 	__auth,
-	__debug,
+	__log,
 	__utils,
 } = require(`${__basedir}/functions/`);
 
@@ -18,7 +18,7 @@ module.exports = (req, res) => {
 		if (['user_cancelled_login', 'user_cancelled_authorize'].includes(inResponse.error)) {
 			return res.redirect(`${config.clientURL}`);
 		} else {
-			__debug.error(inResponse);
+			__log.error(inResponse);
 
 			const message = inResponse.error_description || 'Erro inesperado';
 
@@ -151,7 +151,7 @@ module.exports = (req, res) => {
 				}
 			})
 			.catch(error => {
-				__debug.error(error);
+				__log.error(error);
 
 				return __utils.errorPage(res, res.i18n.t(error) || 'error.internalUnexpectedError');
 			});

@@ -3,7 +3,7 @@ const {
 	__auth,
 	__user,
 	__utils,
-	__debug,
+	__log,
 	__badwords,
 } = require(`${__basedir}/functions/`);
 
@@ -98,7 +98,7 @@ module.exports = (req, res) => {
 
 		return res.status(200).json({ ok: true, user: credentials });
 	}).catch(error => {
-		__debug.error(error);
+		__log.error(error);
 
 		res.status(400).json({ errors: res.i18n.t(error) }).end();
 	});

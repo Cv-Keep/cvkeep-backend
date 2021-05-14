@@ -2,7 +2,7 @@ const {
 	__user,
 	__email,
 	__utils,
-	__debug,
+	__log,
 	__badwords,
 	__actionUrl,
 } = require(`${__basedir}/functions/`);
@@ -65,7 +65,7 @@ module.exports = (req, res) => {
 			res.status(200).json({ updated: true, errors: false, status: 'done' });
 		})
 		.catch(error => {
-			__debug.error(error);
+			__log.error(error);
 
 			res.status(403).json({ allowed: false, errors: res.i18n.t(error || 'error.internalUnexpectedError') });
 		});

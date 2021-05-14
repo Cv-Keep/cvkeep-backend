@@ -2,7 +2,7 @@ const config = require(`${__basedir}/config`);
 
 const {
 	__auth,
-	__debug,
+	__log,
 } = require(`${__basedir}/functions/`);
 
 module.exports = (req, res, next) => {
@@ -25,7 +25,7 @@ module.exports = (req, res, next) => {
 			next();
 		})
 		.catch(error => {
-			__debug.error(error);
+			__log.error(error);
 
 			const message = res.i18n.t(error || 'error.doLoginToExecuteAction');
 

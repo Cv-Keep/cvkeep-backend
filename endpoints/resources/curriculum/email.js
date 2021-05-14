@@ -1,7 +1,7 @@
 const {
 	__user,
 	__email,
-	__debug,
+	__log,
 } = require(`${__basedir}/functions/`);
 
 module.exports = (req, res) => {
@@ -44,7 +44,7 @@ module.exports = (req, res) => {
 					locale: res.i18n.locale,
 				})
 					.catch(error => {
-						__debug.error(error);
+						__log.error(error);
 
 						res.status(500).send(res.i18n.t(error)).end();
 					});
@@ -53,7 +53,7 @@ module.exports = (req, res) => {
 			}
 		})
 		.catch(error => {
-			__debug.error(error);
+			__log.error(error);
 
 			res.status(400).send(res.i18n.t(error)).end();
 		});

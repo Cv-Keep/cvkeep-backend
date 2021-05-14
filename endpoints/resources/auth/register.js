@@ -1,7 +1,7 @@
 const {
+	__log,
 	__user,
 	__email,
-	__debug,
 } = require(`${__basedir}/functions/`);
 
 module.exports = async (req, res) => {
@@ -40,13 +40,13 @@ module.exports = async (req, res) => {
 				};
 			}
 
-			resolve({ new: !thereIsARegistration });
+			resolve({ isNew: !thereIsARegistration });
 		});
 	}).then(registration => {
 		return new Promise(async (resolve, reject) => {
 			let status = undefined;
 
-			if (registration.new) {
+			if (registration.isNew) {
 				status = await __user.register(newUser)
 					.catch(reject);
 			} else {
@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
 			resolve({
 				error: false,
 				status: status,
-				message: res.i18n.t(registration.new ? 'success.registrationEmailSent' : 'error.alreadyRegistering'),
+				message: res.i18n.t(registration.isNew ? 'success.registrationEmailSent' : 'error.alreadyRegistering'),
 			});
 		});
 	})
@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
 
 			return res.status(200).json(result);
 		}).catch(error => {
-			__debug.error(error);
+			__log.error(error);
 
 			res.status(403).json({ errors: res.i18n.t(error) });
 		});

@@ -1,7 +1,7 @@
 const {
 	__user,
 	__email,
-	__debug,
+	__log,
 	__actionUrl,
 } = require(`${__basedir}/functions/`);
 
@@ -67,7 +67,7 @@ module.exports = (req, res) => {
 			return res.status(200).json({ updated: true, errors: false, status: 'done' });
 		})
 		.catch(error => {
-			__debug.error(error);
+			__log.error(error);
 
 			return res.status(400).json({ errors: res.i18n.t(error.message || error) });
 		});

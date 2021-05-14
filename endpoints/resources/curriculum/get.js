@@ -3,7 +3,7 @@ const {
 	__auth,
 	__user,
 	__utils,
-	__debug,
+	__log,
 } = require(`${__basedir}/functions/`);
 
 module.exports = async (req, res) => {
@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
 
 		return res.status(200).json(cv);
 	}).catch(error => {
-		__debug.error(error);
+		__log.error(error);
 
 		return __utils.errorPage(res, res.i18n.t(error || 'error.internalUnexpectedError'));
 	});

@@ -1,6 +1,6 @@
 const {
 	__cv,
-	__debug,
+	__log,
 	__badwords,
 } = require(`${__basedir}/functions/`);
 
@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
 				return res.status(200).json({ errors: false, saved: true });
 			})
 			.catch(error => {
-				__debug.error(error);
+				__log.error(error);
 
 				return res.status(500).json({ errors: [res.i18n.t('error.internalUnexpectedError')] });
 			});
