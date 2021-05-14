@@ -22,11 +22,11 @@ const routes = require('./endpoints/routes.js');
 app.use(cors({
 	credentials: true,
 	exposedHeaders: 'Access-Control-Allow-Origin',
-	
+
 	origin: (origin, callback) => {
 		const allowedOrigins = [
-			config.clientURL,
-			config.serverURL,
+			`${config.clientURL}/*`,
+			`${config.serverURL}/*`,
 		];
 
 		if (config.extraAllowedOrigins) {
