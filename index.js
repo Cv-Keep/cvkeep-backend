@@ -24,6 +24,8 @@ app.use(cors({
 	exposedHeaders: 'Access-Control-Allow-Origin',
 
 	origin: (origin, callback) => {
+		const originBase = new URL(origin).origin; 
+
 		const allowedOrigins = [config.clientURL, config.serverURL]
 			.map(item => new URL(item).origin);
 
@@ -35,7 +37,7 @@ app.use(cors({
 			allowedOrigins.push(...extraOrigins);
 		}
 
-		if (origin && !allowedOrigins.includes(origin)) {
+		if (originBase && !allowedOrigins.includes(originBase)) {
 			return callback(new Error('Origin blocked by CORS policy.'), false);
 		}
 
