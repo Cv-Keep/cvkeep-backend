@@ -43,7 +43,7 @@ app.use(cors({
 			return callback(new Error('Origin blocked by CORS policy.'), false);
 		}
 
-		return callback(null, true);
+		return callback(null, '*');
 	},
 }));
 
