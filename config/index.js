@@ -20,6 +20,7 @@ module.exports = {
 	appBaseDir: path.resolve(__dirname, '..'),
 	port: process.env.PORT || Number(env.PORT),
 	reportEmailAddress: env.REPORT_EMAIL_ADDRESS,
+	extraAllowedOrigins: env.EXTRA_ALLOWED_ORIGINS,
 	noReplyEmailAddress: env.NOREPLY_EMAIL_ADDRESS,
 	uploadMaxFileSizeMB: Number(env.UPLOAD_MAX_FILE_SIZE_MB),
 

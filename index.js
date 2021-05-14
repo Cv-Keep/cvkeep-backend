@@ -20,9 +20,25 @@ const app = express();
 const routes = require('./endpoints/routes.js');
 
 app.use(cors({
-	origin: true,
 	credentials: true,
 	exposedHeaders: 'Access-Control-Allow-Origin',
+	origin: (origin, callback) => {
+		const allowedOrigins = [
+			config.clientURL,
+			config.serverURL,
+		];
+
+		if (config.extraAllowedOrigins) {
+			const extraOrigins = config.extraAllowedOrigins.split(' ');
+			allowedOrigins.push(...extraOrigins);
+		}
+
+		if (origin && !allowedOrigins.includes(origin)) {
+			return callback(new Error('Origin blocked by CORS policy.'), false);
+		}
+
+		return callback(null, true);
+	},
 }));
 
 app.use(helmet());
