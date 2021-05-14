@@ -25,18 +25,6 @@ module.exports = {
 	},
 
 	parseEnv(envContent, debug) {
-		const envJsonNotations = envContent.match(/{([^}])*}\s}|\{([^}])*}.*/gm);
-
-		envJsonNotations && envJsonNotations.forEach(objNotation => {
-			// remove line breaks from all json notations on the env
-			const objNotationMinified = objNotation
-				.replace(/\r?\n|\r/g, '')
-				.replace(/  +/g, '')
-				.replace(/\t/g, '');
-
-			envContent = envContent.replace(objNotation, objNotationMinified);
-		});
-
 		return dotenv.parse(envContent, { debug });
 	},
 };
