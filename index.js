@@ -41,7 +41,12 @@ app.use(function(req, res, next) {
 
 app.use(cors({
 	credentials: true,
-	exposedHeaders: 'Access-Control-Allow-Origin',
+	exposedHeaders: [
+		'Access-Control-Allow-Origin',
+		'Access-Control-Allow-Headers',
+		'Access-Control-Allow-Methods',
+		'Access-Control-Allow-Credentials,
+	],
 
 	origin: (origin, callback) => {
 		const originBase = origin ? new URL(origin).origin : '';
