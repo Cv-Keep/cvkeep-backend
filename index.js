@@ -21,6 +21,13 @@ const routes = require('./endpoints/routes.js');
 
 app.use(cors({
 	credentials: true,
+	exposedHeaders: [
+		'Access-Control-Allow-Origin',
+		'Access-Control-Allow-Headers',
+		'Access-Control-Allow-Methods',
+		'Access-Control-Allow-Credentials,
+	],
+
 	origin: (origin, callback) => {
 		const originBase = origin ? new URL(origin).origin : '';
 
@@ -43,7 +50,6 @@ app.use(cors({
 	},
 }));
 
-app.use(helmet());
 app.use(bearerToken());
 app.use(i18n.middleware);
 app.use('/public', express.static(`${__dirname}/public`));
