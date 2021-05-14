@@ -35,10 +35,10 @@ app.use(cors({
 		}
 
 		if (origin && !allowedOrigins.includes(origin)) {
-			return callback(new Error('Origin blocked by CORS policy.'), { origin: false });
+			return callback(new Error('Origin blocked by CORS policy.'), false);
 		}
 
-		return callback(null, { origin: true });
+		return callback(null, true);
 	},
 }));
 
