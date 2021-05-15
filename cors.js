@@ -12,8 +12,8 @@ module.exports = app => {
 			const extraAllowedOrigins = String(config.extraAllowedOrigins || '').split(' ');
 
 			const allowedOrigins = [...defaultAllowedOrigins, ...extraAllowedOrigins]
-				.map(item => new URL(item).origin)
-				.filter(item => item.length);
+				.filter(item => item.length)
+				.map(item => new URL(item).origin);
 
 			console.log(origin, allowedOrigins);
 
