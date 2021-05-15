@@ -18,6 +18,7 @@ module.exports = {
 			methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
 			origin: (origin, callback) => {
+				console.log('origin', origin);
 				const allowedOrigins = this.getAllowedOrigins();
 				const reqOrigin = origin ? new URL(origin).origin : '';
 
