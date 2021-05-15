@@ -4,8 +4,7 @@ const config = require('./config');
 module.exports = app => {
 	app.use(cors({
 		credentials: true,
-		preflightContinue: true,
-		methods: ['GET', 'POST', 'PUT', 'OPTIONS'],
+		methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
 		origin: (origin, callback) => {
 			const reqOrigin = origin ? new URL(origin).origin : '';
