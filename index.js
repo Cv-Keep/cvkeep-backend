@@ -21,6 +21,8 @@ const routes = require('./endpoints/routes.js');
 
 app.use(cors({
 	credentials: true,
+	preflightContinue: true,
+	methods: [ 'GET', 'POST', 'PUT', 'OPTIONS' ],
 
 	origin: (origin, callback) => {
 		const originBase = origin ? new URL(origin).origin : '';
@@ -43,12 +45,6 @@ app.use(cors({
 		return callback(null, origin);
 	},
 }));
-
-app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'https://cvkeep-frontend.herokuapp.com/'); // update to match the domain you will make the request from
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
 
 app.use(helmet());
 app.use(bearerToken());
