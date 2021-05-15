@@ -19,7 +19,7 @@ const __db = require('./database/');
 const app = express();
 const routes = require('./endpoints/routes.js');
 
-cors(app);
+cors.guard(app);
 
 app.use(helmet());
 app.use(bearerToken());

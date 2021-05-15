@@ -1,10 +1,11 @@
+const config = require(`${__basedir}/config`);
 const chalk = require('chalk');
 
 module.exports = {
 	isActive() {
-		const flag = process.env.DEBUG;
-
-		return flag && (flag.includes('express:*') || flag.includes('__app'));
+		return config.debug &&
+			(config.debug.includes('express:*') ||
+			config.debug.toLowerCase().trim() === 'true');
 	},
 
 	error(refError) {

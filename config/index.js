@@ -17,6 +17,7 @@ module.exports = {
 	defaultLang: env.DEFAULT_LANG,
 	jwtCookieName: env.JWT_COOKIE_NAME,
 	mailer: JSON.parse(env.MAILER_CONFIG),
+	debug: process.env.DEBUG || env.DEBUG,
 	appBaseDir: path.resolve(__dirname, '..'),
 	port: process.env.PORT || Number(env.PORT),
 	reportEmailAddress: env.REPORT_EMAIL_ADDRESS,
