@@ -22,4 +22,6 @@ module.exports = app => {
 			return callback(null, true);
 		},
 	}));
+
+	return app;
 };
