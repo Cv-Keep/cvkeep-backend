@@ -20,11 +20,11 @@ module.exports = {
 			origin: (origin, callback) => {
 				const allowedOrigins = this.getAllowedOrigins();
 				const reqOrigin = origin ? new URL(origin).origin : '';
-				console.log(origin, allowedOrigins);
 
 				if (origin && !allowedOrigins.includes(reqOrigin)) {
 					return callback(new Error('Origin blocked by CORS policy.'), false);
 				}
+
 				return callback(null, true);
 			},
 		});
@@ -35,7 +35,6 @@ module.exports = {
 
 		app.use((req, res, next) => {
 			const origin = req.get('origin');
-			console.log('CORS ACCPETED', origin);
 			const allowedOrigins = this.getAllowedOrigins();
 			const allowThisOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
 
