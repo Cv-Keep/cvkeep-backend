@@ -1,6 +1,5 @@
 const mongojs = require('mongojs');
 const config = require('./../config');
-const { __log } = require('./../functions/');
 
 /** db instance **/
 
@@ -19,7 +18,7 @@ db.collection('cvSearchIndex');
 /** events */
 
 db.on('error', error => {
-	__log.error('FATAL: Database Error ', error);
+	console.error('FATAL: Database Error ', error);
 });
 
 /** -------------------------------- **/
