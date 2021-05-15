@@ -20,11 +20,11 @@ module.exports = {
 			origin: (origin, callback) => {
 				const allowedOrigins = this.getAllowedOrigins();
 				const reqOrigin = origin ? new URL(origin).origin : '';
+				console.log(origin, allowedOrigins);
 
 				if (origin && !allowedOrigins.includes(reqOrigin)) {
 					return callback(new Error('Origin blocked by CORS policy.'), false);
 				}
-				console.log('CORS ACCPETED', origin);
 				return callback(null, true);
 			},
 		});
