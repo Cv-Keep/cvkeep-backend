@@ -16,8 +16,10 @@ const __db = require('./database/');
 
 /** app && /status **/
 
-const app = cors(express());
+const app = express();
 const routes = require('./endpoints/routes.js');
+
+cors(app);
 
 app.use(helmet());
 app.use(bearerToken());

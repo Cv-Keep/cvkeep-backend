@@ -15,6 +15,8 @@ module.exports = app => {
 				.map(item => new URL(item).origin)
 				.filter(item => item.length);
 
+			console.log(origin, allowedOrigins);
+
 			if (origin && !allowedOrigins.includes(reqOrigin)) {
 				return callback(new Error('Origin blocked by CORS policy.'), false);
 			}
