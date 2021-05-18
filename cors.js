@@ -15,7 +15,7 @@ module.exports = {
 	corsMiddle() {
 		return cors({
 			credentials: true,
-			methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+			methods: ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
 			origin: (origin, callback) => {
 				const allowedOrigins = this.getAllowedOrigins();
