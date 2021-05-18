@@ -1,8 +1,8 @@
+const dns = require('dns');
 const mailer = require(`./mailer`);
 const validator = require('email-validator');
 
 module.exports = {
-
 	/**
    * data: {
    *  to: String // destination
@@ -40,5 +40,21 @@ module.exports = {
 		}
 
 		return true;
+	},
+
+	checkMX(email = '') {
+		const domain = email.split('@')[1];
+
+		return new Promise((resolve, reject) => {
+			if (!email || !email.trim()) reject(new Error('No e-mail specified'));
+
+			dns.resolve(domain, 'MX', (err, addresses) => {
+				err && reject(err);
+
+				addresses && addresses.length ?
+					resolve(addresses) :
+					reject(new Error(`No MX entries found for "${domain}"`));
+			});
+		});
 	},
 };

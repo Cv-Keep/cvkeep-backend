@@ -3,7 +3,6 @@ const __user = require('./user.js');
 const __encryption = require('./encryption.js');
 
 module.exports = {
-
 	/**
    * Use this function to schedule an action for a given user. You
    * Must specify the following parameters:

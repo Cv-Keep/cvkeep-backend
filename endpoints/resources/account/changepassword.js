@@ -62,7 +62,8 @@ module.exports = (req, res) => {
 				locale: res.i18n.locale,
 				template: _user.hasPassword ? 'change-password' : 'create-password',
 				subject: _user.hasPassword ? 'Trocar a senha' : 'Criar uma senha',
-			});
+			})
+				.catch(console.error); ;
 
 			return res.status(200).json({ updated: true, errors: false, status: 'done' });
 		})

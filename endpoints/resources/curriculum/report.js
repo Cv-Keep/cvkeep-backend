@@ -15,7 +15,8 @@ module.exports = (req, res) => {
 				template: 'cv-report',
 				locale: res.i18n.locale,
 				...data,
-			});
+			})
+				.catch(console.error); ;
 
 			res.status(200).send(res.i18n.t('success.requestSent')).end();
 		} catch (error) {

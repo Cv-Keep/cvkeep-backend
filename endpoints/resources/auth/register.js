@@ -10,13 +10,17 @@ module.exports = async (req, res) => {
 	const email = newUser.email;
 	const emailConfirmation = newUser.email_confirmation;
 
-	new Promise((resolve, reject) => {
+	new Promise(async (resolve, reject) => {
 		if (!__email.confirmationEmailsMatch(email, emailConfirmation)) {
 			reject('error.invalidEmailOrConfirmationEmail');
 		}
 
 		if (!__email.areValidEmails([email, emailConfirmation])) {
 			reject('error.invalidEmailOrConfirmationEmail');
+		}
+
+		if (!await __email.checkMX(email)) {
+			reject('error.atLeastOneEmailIsInvalid');
 		}
 
 		resolve(true);
@@ -68,7 +72,8 @@ module.exports = async (req, res) => {
 				to: newUser.registering.email,
 				hash: newUser.registering.hash,
 				subject: res.i18n.t('success.registeringEmailSubject'),
-			});
+			})
+				.catch(console.error); ;
 
 			return res.status(200).json(result);
 		}).catch(error => {

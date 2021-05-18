@@ -32,6 +32,10 @@ module.exports = (req, res) => {
 					reject('error.mustDefinePasswordToAlterEmail');
 				}
 
+				if (!await __email.checkMX(newEmail)) {
+					reject('error.atLeastOneEmailIsInvalid');
+				}
+
 				hasUser = await __user.get(newEmail).catch(reject);
 				hasRegistering = await __user.isRegistering(newEmail).catch(reject);
 				newEmailIsAvailable = !hasUser && !hasRegistering;
@@ -59,7 +63,8 @@ module.exports = (req, res) => {
 				newEmail,
 				currentEmail,
 				locale: res.i18n.locale,
-			});
+			})
+				.catch(console.error);
 
 			return res.status(200).json({ updated: true, errors: false });
 		})

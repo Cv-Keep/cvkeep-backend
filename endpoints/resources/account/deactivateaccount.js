@@ -52,7 +52,8 @@ module.exports = (req, res) => {
 				locale: res.i18n.locale,
 				subject: 'Desativar a conta',
 				template: 'deactivate-account',
-			});
+			})
+				.catch(console.error); ;
 
 			res.status(200).json({ errors: false, status: 'done' });
 		})

@@ -3,12 +3,10 @@ const config = require(`${__basedir}/config`);
 const __db = require(`${__basedir}/database/`);
 const __cv = require('./cv.js');
 const __utils = require('./utils.js');
-const __user = require('./user.js');
 const __email = require('./email.js');
 const __userFiles = require('./userFiles.js');
 
 module.exports = {
-
 	get(query, options = {}) {
 		if (typeof query === 'string') {
 			query = { email: query };
@@ -133,7 +131,7 @@ module.exports = {
 			if (daysPassed > 2) {
 				++newUser.registering.renewed;
 
-				newUser.registering.hash = __user.createRegisteringHash(email);
+				newUser.registering.hash = this.createRegisteringHash(email);
 
 				const query = { 'registering.email': newUser.email };
 
@@ -195,7 +193,7 @@ module.exports = {
 
 	changeEmail(currentEmail, newEmail) {
 		return new Promise(async (resolve, reject) => {
-			const alreadyExists = await __user.get({ email: newEmail });
+			const alreadyExists = await this.get({ email: newEmail });
 
 			if (!alreadyExists) {
 				try {
@@ -223,13 +221,13 @@ module.exports = {
 		newUsername = __utils.slugify(newUsername);
 
 		return new Promise(async (resolve, reject) => {
-			const alreadyExists = await __user.get({ username: newUsername });
+			const alreadyExists = await this.get({ username: newUsername });
 
 			if (!alreadyExists) {
 				const cvChangeStatus = await __cv.update(currentUserEmail, { username: newUsername })
 					.catch(reject);
 
-				const userChangeStatus = await __user.update(currentUserEmail, { username: newUsername })
+				const userChangeStatus = await this.update(currentUserEmail, { username: newUsername })
 					.catch(reject);
 
 				resolve({ credentials: userChangeStatus, curriculum: cvChangeStatus });
@@ -254,7 +252,8 @@ module.exports = {
 						template: 'forgotpass',
 						hash: hash,
 						locale: res.i18n.locale,
-					});
+					})
+						.catch(console.error); ;
 
 					resolve({ ok: true });
 				} else {
@@ -311,7 +310,7 @@ module.exports = {
 		const userhash = md5(`${Date.now()}.${userEmail}.${Math.random().toString(32)}`);
 
 		return new Promise(async (resolve, reject) => {
-			await __user.changeUsername(userEmail, userhash);
+			await this.changeUsername(userEmail, userhash);
 
 			this.update(userEmail, { active: false })
 				.then(resolve)

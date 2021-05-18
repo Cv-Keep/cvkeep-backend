@@ -16,8 +16,13 @@ module.exports = {
 	send(options) {
 		const locale = options.locale || config.defaultLang;
 
-		if (!helpers.validateSendOptions(options)) return false;
-		if (options.content) return this.sendRaw(options);
+		if (!helpers.validateSendOptions(options)) {
+			return false;
+		}
+
+		if (options.content) {
+			return this.sendRaw(options);
+		}
 
 		['html', 'text'].forEach(item => {
 			const template = options.template || 'default';
@@ -50,7 +55,7 @@ module.exports = {
 			options.text = options.content;
 		}
 
-		this.dispatch(options);
+		return this.dispatch(options);
 	},
 
 	/**
@@ -63,6 +68,7 @@ module.exports = {
 		return mailer.sendMail({
 			...helpers.getDefaults(),
 			...options,
-		}).catch(console.error);
+		})
+			.catch(console.error);
 	},
 };

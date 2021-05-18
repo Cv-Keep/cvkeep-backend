@@ -60,7 +60,8 @@ module.exports = (req, res) => {
 				actionUrl,
 				newUsername,
 				currentUsername,
-			});
+			})
+				.catch(console.error); ;
 
 			res.status(200).json({ updated: true, errors: false, status: 'done' });
 		})

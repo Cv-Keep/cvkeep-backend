@@ -31,6 +31,10 @@ module.exports = (req, res) => {
 			reject('error.notEnoughDataToOperation');
 		}
 
+		if (!await __email.checkMX(clientData['e_001'])) {
+			reject('error.atLeastOneEmailIsInvalid');
+		}
+
 		const user = await __user.get({ username: to }).catch(reject);
 		user ? resolve(user) : reject(res.i18n.t('error.noEmailDestiny'));
 	})

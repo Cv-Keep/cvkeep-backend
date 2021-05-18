@@ -4,7 +4,6 @@ const __utils = require('./utils.js');
 const __log = require('./log.js');
 
 module.exports = {
-
 	get(query) {
 		if (typeof query === 'string') {
 			query = { email: query };

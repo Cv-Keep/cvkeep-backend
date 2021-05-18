@@ -5,7 +5,6 @@ const rimraf = require('rimraf');
 const _slugify = require('slugify');
 
 module.exports = {
-
 	errorPage(res, message) {
 		message = encodeURI(message);
 

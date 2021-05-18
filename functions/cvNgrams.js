@@ -1,6 +1,5 @@
 const __db = require(`${__basedir}/database/`);
 const __ngrams = require('./ngrams.js');
-const __user = require('./user.js');
 
 module.exports = {
 	_flatObjectStrings(obj) {
@@ -47,7 +46,12 @@ module.exports = {
 
 	async updateCvSearchIndex(userEmail) {
 		const options = { upsert: true, multi: true };
-		const user = await __user.get({ email: userEmail });
+
+		const user = await new Promise((resolve, reject) => {
+			__db.credentials.findOne({ email: userEmail }, (err, doc) => {
+				err ? reject(err) : resolve(doc);
+			});
+		});
 
 		return new Promise((resolve, reject) => {
 			__db.curriculum.findOne({ email: userEmail }, (err, data) => {
