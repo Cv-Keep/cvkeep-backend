@@ -1,7 +1,7 @@
 const {
 	__cv,
 	__user,
-} = require(`${__basedir}/functions/`);
+} = require('../../../functions/');
 
 module.exports = async (req, res) => {
 	if (!req.$user) {

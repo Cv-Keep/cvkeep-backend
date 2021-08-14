@@ -1,4 +1,4 @@
-const __db = require(`${__basedir}/database/`);
+const __db = require('../database');
 const __ngrams = require('./ngrams.js');
 
 module.exports = {

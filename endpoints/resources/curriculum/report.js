@@ -1,4 +1,4 @@
-const { __email } = require(`${__basedir}/functions/`);
+const { __email } = require('../../../functions/');
 
 module.exports = (req, res) => {
 	const data = req.body;

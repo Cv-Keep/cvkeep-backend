@@ -1,5 +1,5 @@
 const jwt = require('./jwt');
-const config = require(`${__basedir}/config`);
+const config = require('../config');
 const __user = require('./user.js');
 const log = require('logflake')('auth');
 
@@ -32,7 +32,7 @@ module.exports = {
 				sameSite: 'none',
 			});
 		} catch (error) {
-			log('error',  error);
+			log('error', error);
 
 			return false;
 		}

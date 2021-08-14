@@ -4,7 +4,7 @@ const {
 	__user,
 	__utils,
 	__badwords,
-} = require(`${__basedir}/functions/`);
+} = require('../../../functions/');
 
 module.exports = (req, res) => {
 	const username = req.body.username || req.query.username;
@@ -34,7 +34,7 @@ module.exports = (req, res) => {
 			return res.status(200).json({ allowed: !user, message });
 		})
 		.catch(error => {
-			log('error',  error);
+			log('error', error);
 
 			return res.status(400).json({ message: res.i18n.t(error), allowed: false });
 		});

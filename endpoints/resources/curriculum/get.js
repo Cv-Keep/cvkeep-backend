@@ -5,7 +5,7 @@ const {
 	__auth,
 	__user,
 	__utils,
-} = require(`${__basedir}/functions/`);
+} = require('../../../functions/');
 
 module.exports = async (req, res) => {
 	const loggedUser = await __auth.getLoggedUser(req);
@@ -61,7 +61,7 @@ module.exports = async (req, res) => {
 
 		return res.status(200).json(cv);
 	}).catch(error => {
-		log('error',  error);
+		log('error', error);
 
 		return __utils.errorPage(res, res.i18n.t(error || 'error.internalUnexpectedError'));
 	});

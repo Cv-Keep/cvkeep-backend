@@ -1,6 +1,6 @@
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const config = require(`${__basedir}/config`);
+const config = require('./../../config');
 
 const PUBLIC_KEY = fs.readFileSync(config.rsa.public, 'utf8');
 const PRIVATE_KEY = fs.readFileSync(config.rsa.private, 'utf8');

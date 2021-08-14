@@ -1,7 +1,7 @@
 const {
 	__user,
 	__auth,
-} = require(`${__basedir}/functions/`);
+} = require('../../../functions/');
 
 module.exports = (req, res) => {
 	const credentials = req.body;

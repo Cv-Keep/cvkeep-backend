@@ -14,13 +14,9 @@
  * REMENBER: NEVER EVER RUN THIS IN PRODUCTION, NEVER.
  */
 
-const path = require('path');
 const args = process.argv.slice(2, 4);
-
 const qt = args[0];
 const pressAnyKey = require('press-any-key');
-
-global.__basedir = path.resolve('');
 const cvNgrams = require('../../functions/cvNgrams.js');
 
 if (!qt) {

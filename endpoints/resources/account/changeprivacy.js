@@ -3,7 +3,7 @@ const log = require('logflake')('change-privacy');
 const {
 	__cv,
 	__user,
-} = require(`${__basedir}/functions/`);
+} = require('../../../functions/');
 
 module.exports = (req, res) => {
 	const useremail = req.$user.email;
@@ -27,7 +27,7 @@ module.exports = (req, res) => {
 			return res.status(200).json({ updated: true, errors: false, status: status });
 		})
 		.catch(error => {
-			log('error',  error);
+			log('error', error);
 
 			return res.status(500).json({ updated: false, errors: [res.i18n.t(error)] });
 		});

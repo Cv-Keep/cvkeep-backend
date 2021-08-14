@@ -8,7 +8,7 @@ const {
 	__user,
 	__auth,
 	__utils,
-} = require(`${__basedir}/functions/`);
+} = require('../../../../functions/');
 
 module.exports = (req, res) => {
 	new Promise((resolve, reject) => {
@@ -75,7 +75,7 @@ module.exports = (req, res) => {
 			return signed ? res.status(200).json(signed) : res.status(403).send(res.i18n.t('error.couldNotLogin'));
 		})
 		.catch(error => {
-			log('error',  error);
+			log('error', error);
 
 			res.status(403).send(res.i18n.t(error || 'error.internalUnexpectedError'));
 		});

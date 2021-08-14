@@ -3,7 +3,7 @@ const log = require('logflake')('register');
 const {
 	__user,
 	__email,
-} = require(`${__basedir}/functions/`);
+} = require('../../../functions/');
 
 module.exports = async (req, res) => {
 	let newUser = req.body;
@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
 
 			return res.status(200).json(result);
 		}).catch(error => {
-			log('error',  error);
+			log('error', error);
 
 			res.status(403).json({ errors: res.i18n.t(error) });
 		});

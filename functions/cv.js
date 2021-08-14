@@ -1,4 +1,4 @@
-const __db = require(`${__basedir}/database/`);
+const __db = require('../database');
 const __cvNgrams = require('./cvNgrams.js');
 const __utils = require('./utils.js');
 const log = require('logflake')('cv');

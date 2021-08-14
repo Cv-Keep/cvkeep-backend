@@ -3,7 +3,7 @@ const log = require('logflake')('cv-mail');
 const {
 	__user,
 	__email,
-} = require(`${__basedir}/functions/`);
+} = require('../../../functions/');
 
 module.exports = (req, res) => {
 	const clientData = req.body;
@@ -49,7 +49,7 @@ module.exports = (req, res) => {
 					locale: res.i18n.locale,
 				})
 					.catch(error => {
-						log('error',  error);
+						log('error', error);
 
 						res.status(500).send(res.i18n.t(error)).end();
 					});
@@ -58,7 +58,7 @@ module.exports = (req, res) => {
 			}
 		})
 		.catch(error => {
-			log('error',  error);
+			log('error', error);
 
 			res.status(400).send(res.i18n.t(error)).end();
 		});

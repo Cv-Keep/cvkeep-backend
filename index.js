@@ -1,6 +1,4 @@
 const config = require(`./config`);
-global.__basedir = config.appBaseDir;
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -38,7 +36,6 @@ app.use(config.base, routes);
 if (config.stage === 'test') {
 	app.fn = __fn;
 	app.__db = __db;
-	app.__basedir = config.appBaseDir;
 
 	module.exports = app;
 } else {

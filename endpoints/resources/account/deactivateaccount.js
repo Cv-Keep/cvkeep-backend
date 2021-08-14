@@ -4,7 +4,7 @@ const {
 	__user,
 	__email,
 	__actionUrl,
-} = require(`${__basedir}/functions/`);
+} = require('../../../functions/');
 
 module.exports = (req, res) => {
 	if (!req.$user.email) {
@@ -59,7 +59,7 @@ module.exports = (req, res) => {
 			res.status(200).json({ errors: false, status: 'done' });
 		})
 		.catch(error => {
-			log('error',  error);
+			log('error', error);
 
 			return res.status(500).json({ errors: res.i18n.t(error) });
 		});

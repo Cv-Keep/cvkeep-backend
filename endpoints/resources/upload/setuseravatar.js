@@ -1,4 +1,4 @@
-const { __user } = require(`${__basedir}/functions/`);
+const { __user } = require('../../../functions/');
 
 module.exports = (req, res) => {
 	const userEmail = req.$user.email;

@@ -1,5 +1,5 @@
-const __db = require(`${__basedir}/database/`);
-const { __ngrams } = require(`${__basedir}/functions/`);
+const __db = require('../../../database/');
+const { __ngrams } = require('../../../functions/');
 
 module.exports = async (req, res) => {
 	res.connection.setTimeout(300000);

@@ -1,6 +1,6 @@
 const fs = require('fs');
 const nodemailer = require('nodemailer');
-const config = require(`${__basedir}/config`);
+const config = require('./../../config');
 
 module.exports = {
 	validateSendOptions(options) {

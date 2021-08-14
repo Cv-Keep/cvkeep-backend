@@ -6,7 +6,7 @@
 * When a resource with guard is called, an object req.$user will be available.
 */
 
-const config = require(`${__basedir}/config`);
+const config = require('./../config/');
 const guard = require('./resources/auth/guard');
 
 /* eslint-disable-next-line*/

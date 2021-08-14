@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const secret = require(`${__basedir}/config`).secret;
+const secret = require('../config').secret;
 
 function Cryptr(secret) {
 	const algorithm = 'aes-256-gcm';

@@ -6,7 +6,7 @@ const {
 	__user,
 	__utils,
 	__badwords,
-} = require(`${__basedir}/functions/`);
+} = require('../../../functions/');
 
 module.exports = (req, res) => {
 	const hash = req.body.hash;
@@ -99,7 +99,7 @@ module.exports = (req, res) => {
 
 		return res.status(200).json({ ok: true, user: credentials });
 	}).catch(error => {
-		log('error',  error);
+		log('error', error);
 
 		res.status(400).json({ errors: res.i18n.t(error) }).end();
 	});

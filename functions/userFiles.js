@@ -1,5 +1,5 @@
 const config = require('../config');
-const usersPublicFolder = `${__basedir}/public/files/users`;
+const usersPublicFolder = `../public/files/users`;
 const __utils = require('./utils.js');
 
 module.exports = {

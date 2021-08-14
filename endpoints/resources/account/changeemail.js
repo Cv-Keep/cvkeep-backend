@@ -4,7 +4,7 @@ const {
 	__user,
 	__email,
 	__actionUrl,
-} = require(`${__basedir}/functions/`);
+} = require('../../../functions/');
 
 module.exports = (req, res) => {
 	const newEmail = req.body.email;

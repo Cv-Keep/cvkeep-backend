@@ -1,5 +1,5 @@
-const config = require(`${__basedir}/config`);
-const applySchema = require(`${__basedir}/schemas`);
+const config = require('./../config');
+const applySchema = require('./../schemas');
 const fs = require('fs');
 const rimraf = require('rimraf');
 const _slugify = require('slugify');

@@ -1,4 +1,4 @@
-const config = require(`${__basedir}/config`);
+const config = require('../config');
 const __user = require('./user.js');
 const __encryption = require('./encryption.js');
 
