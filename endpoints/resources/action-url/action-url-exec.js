@@ -1,7 +1,8 @@
+const log = require('logflake')('action-url');
+
 const {
 	__auth,
 	__utils,
-	__log,
 	__actionUrl,
 } = require(`${__basedir}/functions/`);
 
@@ -30,7 +31,7 @@ module.exports = (req, res) => {
 
 		return __utils.successPage(res, successMessage, 'disconnectAllTabs');
 	}).catch(error => {
-		__log.error(error);
+		log('error',  error);
 
 		return __utils.errorPage(res, res.i18n.t(error));
 	});

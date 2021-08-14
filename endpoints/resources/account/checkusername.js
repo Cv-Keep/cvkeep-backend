@@ -1,5 +1,6 @@
+const log = require('logflake')('check-username');
+
 const {
-	__log,
 	__user,
 	__utils,
 	__badwords,
@@ -33,7 +34,7 @@ module.exports = (req, res) => {
 			return res.status(200).json({ allowed: !user, message });
 		})
 		.catch(error => {
-			__log.error(error);
+			log('error',  error);
 
 			return res.status(400).json({ message: res.i18n.t(error), allowed: false });
 		});

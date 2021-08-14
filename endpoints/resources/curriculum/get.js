@@ -1,9 +1,10 @@
+const log = require('logflake')('save-cv');
+
 const {
 	__cv,
 	__auth,
 	__user,
 	__utils,
-	__log,
 } = require(`${__basedir}/functions/`);
 
 module.exports = async (req, res) => {
@@ -60,7 +61,7 @@ module.exports = async (req, res) => {
 
 		return res.status(200).json(cv);
 	}).catch(error => {
-		__log.error(error);
+		log('error',  error);
 
 		return __utils.errorPage(res, res.i18n.t(error || 'error.internalUnexpectedError'));
 	});

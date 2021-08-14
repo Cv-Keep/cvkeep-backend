@@ -1,6 +1,7 @@
+const log = require('logflake')('forgot-pass');
+
 const {
 	__user,
-	__log,
 } = require(`${__basedir}/functions/`);
 
 module.exports = (req, res) => {
@@ -64,7 +65,7 @@ module.exports = (req, res) => {
 			res.status(200).json(result) :
 			res.status(404).json({ ok: false, errors: [res.i18n.t('error.internalUnexpectedError')] });
 	}).catch(error => {
-		__log.error(error);
+		log('error',  error);
 
 		res.status(500).json({ errors: res.i18n.t(error) });
 	}); ;

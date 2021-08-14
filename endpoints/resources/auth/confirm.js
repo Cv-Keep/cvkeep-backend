@@ -1,9 +1,10 @@
+const log = require('logflake')('confirm-account');
+
 const {
 	__cv,
 	__auth,
 	__user,
 	__utils,
-	__log,
 	__badwords,
 } = require(`${__basedir}/functions/`);
 
@@ -98,7 +99,7 @@ module.exports = (req, res) => {
 
 		return res.status(200).json({ ok: true, user: credentials });
 	}).catch(error => {
-		__log.error(error);
+		log('error',  error);
 
 		res.status(400).json({ errors: res.i18n.t(error) }).end();
 	});

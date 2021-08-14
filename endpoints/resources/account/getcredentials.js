@@ -1,3 +1,4 @@
+const log = require('logflake')('get-credentials');
 const config = require(`${__basedir}/config`);
 
 const {
@@ -5,7 +6,6 @@ const {
 	__user,
 	__auth,
 	__utils,
-	__log,
 } = require(`${__basedir}/functions/`);
 
 module.exports = (req, res) => {
@@ -38,7 +38,7 @@ module.exports = (req, res) => {
 			return res.status(200).json(user);
 		})
 		.catch(error => {
-			__log.error(error);
+			log('error',  error);
 
 			res.status(500).json(error);
 		});

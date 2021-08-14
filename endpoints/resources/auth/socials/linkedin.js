@@ -1,3 +1,4 @@
+const log = require('logflake')('in-login');
 const config = require(`${__basedir}/config`);
 const request = require('superagent');
 const md5 = require('md5');
@@ -7,7 +8,6 @@ const {
 	__cv,
 	__user,
 	__auth,
-	__log,
 	__utils,
 } = require(`${__basedir}/functions/`);
 
@@ -18,7 +18,7 @@ module.exports = (req, res) => {
 		if (['user_cancelled_login', 'user_cancelled_authorize'].includes(inResponse.error)) {
 			return res.redirect(`${config.clientURL}`);
 		} else {
-			__log.error(inResponse);
+			log('error',  inResponse);
 
 			const message = inResponse.error_description || 'Erro inesperado';
 
@@ -151,7 +151,7 @@ module.exports = (req, res) => {
 				}
 			})
 			.catch(error => {
-				__log.error(error);
+				log('error',  error);
 
 				return __utils.errorPage(res, res.i18n.t(error) || 'error.internalUnexpectedError');
 			});

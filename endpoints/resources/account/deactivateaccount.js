@@ -1,7 +1,8 @@
+const log = require('logflake')('deactivate');
+
 const {
 	__user,
 	__email,
-	__log,
 	__actionUrl,
 } = require(`${__basedir}/functions/`);
 
@@ -58,7 +59,7 @@ module.exports = (req, res) => {
 			res.status(200).json({ errors: false, status: 'done' });
 		})
 		.catch(error => {
-			__log.error(error);
+			log('error',  error);
 
 			return res.status(500).json({ errors: res.i18n.t(error) });
 		});

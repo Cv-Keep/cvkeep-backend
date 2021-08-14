@@ -1,9 +1,6 @@
+const log = require('logflake')('auth-guard');
 const config = require(`${__basedir}/config`);
-
-const {
-	__auth,
-	__log,
-} = require(`${__basedir}/functions/`);
+const { __auth } = require(`${__basedir}/functions/`);
 
 module.exports = (req, res, next) => {
 	const logged = req.signedCookies[config.jwtCookieName] || req.token;
@@ -25,7 +22,7 @@ module.exports = (req, res, next) => {
 			next();
 		})
 		.catch(error => {
-			__log.error(error);
+			log('error',  error);
 
 			const message = res.i18n.t(error || 'error.doLoginToExecuteAction');
 

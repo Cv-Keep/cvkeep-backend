@@ -1,7 +1,8 @@
+const log = require('logflake')('change-email');
+
 const {
 	__user,
 	__email,
-	__log,
 	__actionUrl,
 } = require(`${__basedir}/functions/`);
 
@@ -69,7 +70,7 @@ module.exports = (req, res) => {
 			return res.status(200).json({ updated: true, errors: false });
 		})
 		.catch(error => {
-			__log.error(error);
+			log('error', error);
 
 			res.status(400).json({ allowed: false, errors: [res.i18n.t(error)] });
 		});

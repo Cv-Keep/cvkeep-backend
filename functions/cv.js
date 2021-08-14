@@ -1,7 +1,7 @@
 const __db = require(`${__basedir}/database/`);
 const __cvNgrams = require('./cvNgrams.js');
 const __utils = require('./utils.js');
-const __log = require('./log.js');
+const log = require('logflake')('cv');
 
 module.exports = {
 	get(query) {
@@ -48,7 +48,8 @@ module.exports = {
 			delete data._id;
 
 			__db.curriculum.update({ email: email }, { $set: { ...data } }, options, (error, status) => {
-				__cvNgrams.updateCvSearchIndex(email).catch(__log.error);
+				__cvNgrams.updateCvSearchIndex(email)
+					.catch(error => log('error', error));
 
 				(!error && status.ok) ? resolve(status) : reject(error || `Error: DB Query Status: ${status.ok}`);
 			});

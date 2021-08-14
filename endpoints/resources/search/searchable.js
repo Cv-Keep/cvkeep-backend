@@ -1,7 +1,5 @@
-const {
-	__cv,
-	__log,
-} = require(`${__basedir}/functions/`);
+const log = require('logflake')('cv-searchable');
+const { __cv } = require(`${__basedir}/functions/`);
 
 module.exports = (req, res) => {
 	const useremail = req.$user.email;
@@ -20,7 +18,7 @@ module.exports = (req, res) => {
 			res.status(200).json({ updated: true, errors: false, status: status });
 		})
 		.catch(error => {
-			__log.error(error);
+			log('error',  error);
 
 			res.status(500).json({ updated: false, errors: [res.i18n.t(error)] });
 		});

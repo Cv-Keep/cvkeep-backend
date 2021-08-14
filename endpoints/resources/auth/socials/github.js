@@ -1,3 +1,4 @@
+const log = require('logflake')('gh-login');
 const config = require(`${__basedir}/config`);
 const request = require('superagent');
 const md5 = require('md5');
@@ -7,7 +8,6 @@ const {
 	__user,
 	__auth,
 	__utils,
-	__log,
 } = require(`${__basedir}/functions/`);
 
 module.exports = (req, res) => {
@@ -96,7 +96,7 @@ module.exports = (req, res) => {
 				}
 			})
 			.catch(error => {
-				__log.error(error);
+				log('error',  error);
 
 				return __utils.errorPage(res, res.i18n.t(error) || 'error.internalUnexpectedError');
 			});

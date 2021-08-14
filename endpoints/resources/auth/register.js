@@ -1,5 +1,6 @@
+const log = require('logflake')('register');
+
 const {
-	__log,
 	__user,
 	__email,
 } = require(`${__basedir}/functions/`);
@@ -77,7 +78,7 @@ module.exports = async (req, res) => {
 
 			return res.status(200).json(result);
 		}).catch(error => {
-			__log.error(error);
+			log('error',  error);
 
 			res.status(403).json({ errors: res.i18n.t(error) });
 		});

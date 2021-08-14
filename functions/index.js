@@ -1,6 +1,5 @@
 module.exports = {
 	__cv: require('./cv.js'),
-	__log: require('./log.js'),
 	__auth: require('./auth.js'),
 	__user: require('./user.js'),
 	__utils: require('./utils.js'),

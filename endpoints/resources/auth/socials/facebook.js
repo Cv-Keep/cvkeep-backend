@@ -1,3 +1,4 @@
+const log = require('logflake')('fb-login');
 const request = require('superagent');
 const md5 = require('md5');
 const querystring = require('querystring');
@@ -7,7 +8,6 @@ const {
 	__user,
 	__auth,
 	__utils,
-	__log,
 } = require(`${__basedir}/functions/`);
 
 module.exports = (req, res) => {
@@ -75,7 +75,7 @@ module.exports = (req, res) => {
 			return signed ? res.status(200).json(signed) : res.status(403).send(res.i18n.t('error.couldNotLogin'));
 		})
 		.catch(error => {
-			__log.error(error);
+			log('error',  error);
 
 			res.status(403).send(res.i18n.t(error || 'error.internalUnexpectedError'));
 		});

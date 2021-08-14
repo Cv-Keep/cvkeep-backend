@@ -1,8 +1,7 @@
 const jwt = require('./jwt');
 const config = require(`${__basedir}/config`);
-
 const __user = require('./user.js');
-const __log = require('./log.js');
+const log = require('logflake')('auth');
 
 module.exports = {
 	async signIn(credentials, res) {
@@ -33,7 +32,7 @@ module.exports = {
 				sameSite: 'none',
 			});
 		} catch (error) {
-			__log.error(error);
+			log('error',  error);
 
 			return false;
 		}

@@ -1,7 +1,8 @@
+const log = require('logflake')('change-privacy');
+
 const {
 	__cv,
 	__user,
-	__log,
 } = require(`${__basedir}/functions/`);
 
 module.exports = (req, res) => {
@@ -26,7 +27,7 @@ module.exports = (req, res) => {
 			return res.status(200).json({ updated: true, errors: false, status: status });
 		})
 		.catch(error => {
-			__log.error(error);
+			log('error',  error);
 
 			return res.status(500).json({ updated: false, errors: [res.i18n.t(error)] });
 		});
