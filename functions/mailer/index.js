@@ -2,6 +2,7 @@ const helpers = require('./helpers.js');
 const mailer = helpers.getMailer();
 const Handlebars = require('handlebars');
 const config = require(`${__basedir}/config`);
+const log = require('logflake')('mailer');
 
 module.exports = {
 
@@ -65,6 +66,8 @@ module.exports = {
 	 * @param {mailer options} options
 	 */
 	dispatch(options) {
+		log('info', 'EMAIL SENT: ', options);
+
 		return mailer.sendMail({
 			...helpers.getDefaults(),
 			...options,

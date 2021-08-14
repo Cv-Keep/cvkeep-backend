@@ -213,7 +213,6 @@ module.exports = {
 
 	changePassword(email, newPassword) {
 		newPassword = this.encodePassword(newPassword);
-
 		return this.update(email, { password: newPassword });
 	},
 
@@ -264,7 +263,11 @@ module.exports = {
 	},
 
 	removeForgotPass(hash) {
-		return __db.forgotpass.remove({ hash: hash });
+		return new Promise((resolve, reject) => {
+			return __db.forgotpass.remove({ hash: hash }, (error, data) => {
+				(error || !data) ? reject(error || 'error.internalUnexpectedError') : resolve(data);
+			});
+		});
 	},
 
 	validateForgottenPassHash(hash) {
@@ -273,14 +276,16 @@ module.exports = {
 				(error || !data) ? reject(error || 'error.invalidToken') : resolve(data);
 			});
 		}).then(data => {
-			const hashAgeInDays = (new Date().getTime() - new Date(data.created).getTime()) / (1000 * 3600 * 24);
+			return new Promise(resolve => {
+				const hashAgeInDays = (new Date().getTime() - new Date(data.created).getTime()) / (1000 * 3600 * 24);
 
-			if (hashAgeInDays <= 2) {
-				resolve(true);
-			} else {
-				__db.forgotpass.remove({ hash: hash });
-				resolve(false);
-			}
+				if (hashAgeInDays <= 2) {
+					resolve(true);
+				} else {
+					__db.forgotpass.remove({ hash: hash });
+					resolve(false);
+				}
+			});
 		});
 	},
 

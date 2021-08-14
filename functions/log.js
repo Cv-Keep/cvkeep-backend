@@ -1,5 +1,4 @@
 const config = require(`${__basedir}/config`);
-const chalk = require('chalk');
 
 module.exports = {
 	isActive() {
@@ -8,13 +7,13 @@ module.exports = {
 			config.debug.toLowerCase().trim() === 'true');
 	},
 
-	error(refError) {
-		const prefix = chalk.red.bold('DEBUG LOG (ERR):');
+	error(refError, namespace = 'APP') {
+		const log = require('logflake')(namespace);
+		this.isActive() && log('error', refError);
+	},
 
-		if (typeof refError === 'string') {
-			refError = new Error(refError).stack;
-		}
-
-		this.isActive() && console.error(`${prefix} ${refError}`);
+	info(info, namespace = 'APP') {
+		const log = require('logflake')(namespace);
+		this.isActive() && log('info', info);
 	},
 };

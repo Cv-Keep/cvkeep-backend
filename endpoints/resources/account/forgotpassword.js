@@ -33,7 +33,8 @@ module.exports = (req, res) => {
 			// IF SENDING ONLY THE HASH TO VALIDATE
 
 			if (task === 'validate' && hash) {
-				const isValidHash = await __user.validateForgottenPassHash().catch(reject);
+				const isValidHash = await __user.validateForgottenPassHash(hash)
+					.catch(reject);
 
 				if (isValidHash) {
 					resolve({ ok: true });
@@ -45,7 +46,8 @@ module.exports = (req, res) => {
 			// IF RESETING THE PASS BASED ON EXISTENT HASH
 
 			if (task === 'reset' && hash && pass) {
-				const isValidHash = await __user.validateForgottenPassHash(hash).catch(reject);
+				const isValidHash = await __user.validateForgottenPassHash(hash)
+					.catch(reject);
 
 				if (isValidHash) {
 					await __user.changePassword(user.email, pass).catch(reject);

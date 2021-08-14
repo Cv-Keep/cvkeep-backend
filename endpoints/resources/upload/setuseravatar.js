@@ -2,7 +2,7 @@ const { __user } = require(`${__basedir}/functions/`);
 
 module.exports = (req, res) => {
 	const userEmail = req.$user.email;
-	const avatar = req.files.avatar;
+	const avatar = req.files ? req.files.avatar : req.body.avatar;
 
 	if (!userEmail.trim() || !req.$user.username || !avatar) {
 		return res.status(400).json({ error: res.i18n.t('error.internalUnexpectedError') });
