@@ -1,106 +1,104 @@
-const log = require('logflake')('confirm-account');
+const log = require('logflake')('confirm-registration');
+const { fnCv, fnAuth, fnUser, fnBadwords } = require('../../../functions/');
 
-const {
-	__cv,
-	__auth,
-	__user,
-	__utils,
-	__badwords,
-} = require('../../../functions/');
-
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
 	const hash = req.body.hash;
 	const credentials = req.body.credentials;
 
-	new Promise((resolve, reject) => {
-		if (!hash) {
-			reject('error.looksLikeYouAreLost');
-		}
+	const sendError = (error, status = 400) => {
+		log('error', status, error);
 
-		if (req.$user) {
-			reject('error.youMustSignOut');
-		}
+		return res.status(status).json({ errors: res.i18n.t(error) });
+	};
 
-		__user.getRegisteringByHash(hash)
-			.then(resolve)
-			.catch(reject);
-	}).then(newUser => {
-		return new Promise(async (resolve, reject) => {
-			let userAlreadyExists = false;
+	if (!hash) {
+		return sendError('error.looksLikeYouAreLost');
+	}
 
-			if (__badwords.isProfane(newUser)) {
-				reject('error.badwordsOnUsername');
+	if (req.$user) {
+		return sendError('error.youMustSignOut');
+	}
+
+	fnUser.getRegisteringByHash(hash)
+		.then(async newUser => {
+			const validations = [
+				{
+					statusCode: 400,
+					message: 'error.invalidHashOrNoAssociatedUser',
+					test: async () => !!newUser,
+				},
+				{
+					statusCode: 403,
+					message: 'error.userAlreadyOnDatabase',
+					test: async () => !await fnUser.get(newUser.registering.email),
+				},
+				{
+					statusCode: 403,
+					message: 'error.badwordsOnUsername',
+					test: async () => !fnBadwords.isProfane(newUser),
+				},
+			];
+
+			for (let i = 0; i < validations.length; i++) {
+				const validation = validations[i];
+
+				if (!await validation.test()) {
+					return sendError(validation.message, validation.statusCode);
+				}
 			}
 
-			if (!newUser) {
-				reject('error.invalidHashOrNoAssociatedUser');
-			} else {
-				userAlreadyExists = await __user.get(newUser.registering.email).catch(reject);
+			/**
+			 * When client sends only a hash and no credentials,
+			 * we only validate the hash and sent the result back
+			 */
+			if (hash && !credentials) {
+				return res.status(200).json({
+					ok: true,
+					hashOk: true,
+					email: newUser.registering.email,
+				});
 			}
 
-			if (userAlreadyExists) {
-				await __user.removeRegistering(hash).catch(reject);
-
-				reject('error.userAlreadyOnDatabase');
-			} else {
-				resolve(newUser);
-			}
-		});
-	}).then(newUser => {
-		return new Promise(async (resolve, reject) => {
-			if (!credentials) {
-				return res.status(200).json({ ok: true, hashOk: true });
-			}
-
-			const registrationValid = __utils.secsToDays(newUser.registering.created) <= 2;
-
-			if (registrationValid) {
-				resolve(newUser);
-			} else {
-				++newUser.registering.renewed;
-				newUser.registering.created = new Date();
-				newUser.registering.temp_pass = __user.generateRandomPassword();
-				newUser.registering.hash = __user.createRegisteringHash(newUser.registering.email);
-
-				__user.updateRegistering(newUser).catch(reject);
-
-				reject('error.expiredRegistrationConfirmationLink');
-			}
-		});
-	}).then(newUser => {
-		return new Promise(async (resolve, reject) => {
-			const passwordsMatch = credentials.password === credentials.confirmPassword;
-
-			if (!passwordsMatch) {
+			if (!credentials.password === credentials.confirmPassword) {
 				return reject('error.invalidPassword');
 			}
 
-			const newUserCV = __utils.schema('curriculum');
+			const createdCv = await fnCv.create({
+				username: credentials.username,
+				email: newUser.registering.email,
+				basics: { fullname: res.i18n.t('yourName') },
+			})
+				.catch(sendError);
 
-			newUserCV.email = newUser.registering.email;
-			newUserCV.username = credentials.username;
+			const createdUser = await fnUser.create({
+				active: true,
+				fullname: res.i18n.t('yourName'),
+				username: credentials.username,
+				email: newUser.registering.email,
+				password: fnUser.encodePassword(credentials.password),
+			})
+				.catch(sendError);
 
-			credentials.active = true;
-			credentials.email = newUser.registering.email;
-			credentials.fullname = newUserCV.basics.fullname;
-			credentials.password = __user.encodePassword(credentials.password);
+			if (createdCv && createdUser) {
+				const newUser = createdUser.toObject();
 
-			delete credentials.confirmPassword;
+				delete newUser.password;
+				delete newUser.confirmPassword;
 
-			await __cv.create(newUserCV).catch(reject);
-			await __user.create(credentials).catch(reject);
+				fnAuth.signIn(newUser, res)
+					.then(logged => {
+						fnUser.removeRegistering(hash);
 
-			resolve(true);
-		});
-	}).then(async () => {
-		delete credentials.password;
-
-		await __auth.signIn(credentials, res);
-
-		return res.status(200).json({ ok: true, user: credentials });
-	}).catch(error => {
-		log('error', error);
-
-		res.status(400).json({ errors: res.i18n.t(error) }).end();
-	});
+						return res.status(200).json({
+							logged,
+							ok: true,
+							user: newUser,
+						});
+					})
+					.catch(sendError);
+			} else {
+				sendError('error.internalUnexpectedError', 500);
+			}
+		})
+		.catch(sendError);
 };

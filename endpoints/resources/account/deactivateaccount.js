@@ -54,7 +54,7 @@ module.exports = (req, res) => {
 				subject: 'Desativar a conta',
 				template: 'deactivate-account',
 			})
-				.catch(console.error); ;
+				.catch(error => log('error', error));
 
 			res.status(200).json({ errors: false, status: 'done' });
 		})

@@ -1,0 +1,74 @@
+const mongoose = require('mongoose');
+
+const CurriculumSchema = new mongoose.Schema({
+	lang: { type: String, default: 'en' },
+	views: { type: Number, default: 0 },
+	email: { type: String, required: true },
+	username: { type: String, required: true },
+	searchable: { type: Boolean, default: true },
+	canEdit: { type: Boolean, default: false },
+	editing: { type: Boolean, default: false },
+	color: { type: String, default: '#4ecdc4' },
+	background: { type: String, default: '' },
+	sections: { type: Array },
+	hiddenSections: { type: Array },
+	civilState: { type: String, default: 'single' },
+	allowPublicMessages: { type: Boolean, default: true },
+	passwordProtected: { type: Boolean, default: false },
+	locked: { type: Boolean, default: false },
+	created: { type: Date, default: new Date() },
+	availability: {
+		freelance: { type: Boolean, default: false },
+		lookingForWork: { type: Boolean, default: false },
+		disability: { type: Boolean, default: false },
+		onlyRemote: { type: Boolean, default: false },
+	},
+	basics: {
+		fullname: { type: String, default: '' },
+		role: { type: String, default: '' },
+		photo: { type: String, default: '' },
+	},
+	location: {
+		country: { type: String, default: 'Brasil'},
+		region: { type: String, default: 'SP' },
+		city: { type: String, default: 'São Paulo' },
+	},
+	contact: {
+		primaryNumber: { type: String, default: '+55 (11) 988880000' },
+		primaryNumberKind: { type: String, default: 'cellphone' },
+	},
+	presentation: {
+		max_length: { type: Number, default: 500 },
+		description: { type: String, default: '' },
+	},
+	education: {
+		items: { type: Array },
+		introduction: { type: String, default: '' },
+	},
+	languages: {
+		items: { type: Array },
+		introduction: { type: String, default: '' },
+	},
+	experience: {
+		items: { type: Array },
+		introduction: { type: String, default: '' },
+	},
+	skills: {
+		items: { type: Array },
+		introduction: { type: String, default: '' },
+	},
+	prizes: {
+		items: { type: Array },
+		introduction: { type: String, default: '' },
+	},
+	portfolio: {
+		items: { type: Array },
+		introduction: { type: String, default: '' },
+	},
+	links: {
+		items: { type: Array },
+		introduction: { type: String, default: '' },
+	},
+});
+
+module.exports = mongoose.model('curriculum', CurriculumSchema);

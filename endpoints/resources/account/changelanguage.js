@@ -1,25 +1,29 @@
-const {
-	__cv,
-	__user,
-} = require('../../../functions/');
+const log = require('logflake')('change-lang');
+const { fnCv, fnUser } = require('../../../functions/');
 
 module.exports = async (req, res) => {
+	const sendError = (error, status) => {
+		log('error', status, error);
+
+		return res.status(status).send(res.i18n.t(error));
+	};
+
 	if (!req.$user) {
-		res.status(403).send(res.i18n.t('error.userMustBeLogged'));
+		return sendError('error.userMustBeLogged', 403);
 	}
 
 	if (!req.body.lang) {
-		res.status(400).send(res.i18n.t('error.languageNotDefined'));
-	} else {
-		res.i18n.locale = req.body.lang;
+		sendError('error.languageNotDefined', 400);
 	}
 
-	try {
-		await __cv.update(req.$user.email, { lang: req.body.lang });
-		await __user.update(req.$user.email, { lang: req.body.lang });
-	} catch (err) {
-		return res.status(500).send(res.i18n.t('error.failToChangeLanguage')).end();
-	}
+	res.i18n.locale = req.body.lang;
 
-	return res.status(200).send(res.i18n.t('success.languageSuccessfullyChanged'));
+	await fnCv.update(req.$user.email, { lang: req.body.lang })
+		.catch(error => sendError(error, 500));
+
+	await fnUser.update(req.$user.email, { lang: req.body.lang })
+		.catch(error => sendError(error, 500));
+
+	res.status(200)
+		.send(res.i18n.t('success.languageSuccessfullyChanged'));
 };

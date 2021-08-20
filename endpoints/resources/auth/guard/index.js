@@ -1,31 +1,34 @@
 const log = require('logflake')('auth-guard');
 const config = require('../../../../config/');
-const { __auth } = require('../../../../config/');
+const { fnAuth } = require('../../../../functions/');
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
 	const logged = req.signedCookies[config.jwtCookieName] || req.token;
 
-	new Promise((resolve, reject) => {
-		if (!logged) reject(null);
+	const sendError = (error = 'error.doLoginToExecuteAction', status = 403) => {
+		log('error', status, error);
 
-		__auth.verifyToken(logged)
-			.then(user => {
-				user ? resolve(user) : reject(null);
-			})
-			.catch(error => {
-				__auth.signOut(res, 403);
-				reject(error);
-			});
-	})
+		return res.status(status).send({
+			auth: false,
+			message: error,
+		});
+	};
+
+	if (!logged) {
+		return sendError();
+	}
+
+	fnAuth.verifyToken(logged)
 		.then(user => {
+			if (!user) {
+				return sendError();
+			}
+
 			req.$user = user;
 			next();
 		})
 		.catch(error => {
-			log('error', error);
-
-			const message = res.i18n.t(error || 'error.doLoginToExecuteAction');
-
-			return res.status(403).send({ auth: false, message });
+			fnAuth.signOut(res, 500);
+			sendError(error, 500);
 		});
 };

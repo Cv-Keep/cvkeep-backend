@@ -1,9 +1,5 @@
 const log = require('logflake')('cv-mail');
-
-const {
-	__user,
-	__email,
-} = require('../../../functions/');
+const { fnUser, fnEmail } = require('../../../functions/');
 
 module.exports = (req, res) => {
 	const clientData = req.body;
@@ -32,16 +28,16 @@ module.exports = (req, res) => {
 			reject('error.notEnoughDataToOperation');
 		}
 
-		if (!await __email.checkMX(clientData['e_001'])) {
+		if (!await fnEmail.checkMX(clientData['e_001'])) {
 			reject('error.atLeastOneEmailIsInvalid');
 		}
 
-		const user = await __user.get({ username: to }).catch(reject);
+		const user = await fnUser.get({ username: to }).catch(reject);
 		user ? resolve(user) : reject(res.i18n.t('error.noEmailDestiny'));
 	})
 		.then(user => {
 			if (user.privacy.allowPublicMessages) {
-				__email.send({
+				fnEmail.send({
 					...clientData,
 					to: user.email,
 					subject: `Novo Contato!`,

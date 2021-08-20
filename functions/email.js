@@ -45,15 +45,13 @@ module.exports = {
 	checkMX(email = '') {
 		const domain = email.split('@')[1];
 
-		return new Promise((resolve, reject) => {
+		return new Promise(resolve => {
 			if (!email || !email.trim()) reject(new Error('No e-mail specified'));
 
 			dns.resolve(domain, 'MX', (err, addresses) => {
-				err && reject(err);
+				err && resolve(null);
 
-				addresses && addresses.length ?
-					resolve(addresses) :
-					reject(new Error(`No MX entries found for "${domain}"`));
+				addresses && addresses.length ? resolve(addresses) : resolve(null);
 			});
 		});
 	},

@@ -1,72 +1,73 @@
 const log = require('logflake')('forgot-pass');
+const { fnUser } = require('../../../functions/');
 
-const {
-	__user,
-} = require('../../../functions/');
-
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
 	const task = req.body.task;
 	const email = req.body.email;
 	const hash = req.body.hash;
 	const pass = req.body.password;
 
+	const sendError = (error, status = 400) => {
+		log('error', status, error);
+
+		return res.status(status).json({
+			ok: false,
+			errors: res.i18n.t(error),
+		});
+	};
+
+	const sendResOk = () => res.status(200).json({
+		ok: true,
+		errors: false,
+	});
+
 	if (!email && !hash && !pass) {
-		return res.status(400).json({ errors: res.i18n.t('error.noDataToProcess') });
+		return sendError('error.noDataToProcess');
 	}
 
-	new Promise((resolve, reject) => {
-		__user.get(email)
-			.then(resolve)
-			.catch(reject);
-	}).then(user => {
-		return new Promise(async (resolve, reject) => {
-			if (!user) {
-				reject({ errors: ['error.userNotFound'] });
-			}
+	const user = await fnUser.get(email)
+		.catch(error => sendError(error, 500));
 
-			// IF CREATING A NEW FORGOTTEN PASS EMAIL REQUEST
+	if (!user) {
+		sendError('error.userNotFound');
+	}
 
-			if (task === 'create' && email) {
-				await __user.forgotPass(email, res).catch(reject);
-				resolve({ ok: true });
-			}
+	// IF CREATING A NEW FORGOTTEN PASS EMAIL REQUEST
 
-			// IF SENDING ONLY THE HASH TO VALIDATE
+	if (task === 'create' && email) {
+		await fnUser.forgotPass(email, res)
+			.catch(error => sendError(error, 500));
 
-			if (task === 'validate' && hash) {
-				const isValidHash = await __user.validateForgottenPassHash(hash)
-					.catch(reject);
+		return sendResOk();
+	}
 
-				if (isValidHash) {
-					resolve({ ok: true });
-				} else {
-					reject('error.passwordRecoveryExpiredToken');
-				}
-			}
+	// IF SENDING ONLY THE HASH TO VALIDATE
 
-			// IF RESETING THE PASS BASED ON EXISTENT HASH
+	if (task === 'validate' && hash) {
+		const isValidHash = await fnUser.validateForgottenPassHash(hash)
+			.catch(error => sendError(error, 500));
 
-			if (task === 'reset' && hash && pass) {
-				const isValidHash = await __user.validateForgottenPassHash(hash)
-					.catch(reject);
+		return isValidHash ?
+			sendResOk() :
+			sendError('error.passwordRecoveryExpiredToken', 403);
+	}
 
-				if (isValidHash) {
-					await __user.changePassword(user.email, pass).catch(reject);
-					await __user.removeForgotPass(hash).catch(reject);
+	// IF RESETING THE PASS BASED ON EXISTENT HASH
 
-					resolve({ ok: true });
-				} else {
-					reject('error.invalidToken');
-				}
-			};
-		});
-	}).then(result => {
-		return result.ok ?
-			res.status(200).json(result) :
-			res.status(404).json({ ok: false, errors: [res.i18n.t('error.internalUnexpectedError')] });
-	}).catch(error => {
-		log('error', error);
+	if (task === 'reset' && hash && pass) {
+		const isValidHash = await fnUser.validateForgottenPassHash(hash)
+			.catch(error => sendError(error, 500));
 
-		res.status(500).json({ errors: res.i18n.t(error) });
-	}); ;
+		if (!isValidHash) {
+			return sendError('error.invalidToken', 403);
+		}
+
+		await fnUser.changePassword(user.email, pass)
+			.catch(error => sendError(error, 500));
+
+		await fnUser.removeForgotPass(hash)
+			.catch(error => sendError(error, 500));
+
+		sendResOk();
+	}
 };

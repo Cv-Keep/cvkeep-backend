@@ -66,12 +66,18 @@ module.exports = {
 	 * @param {mailer options} options
 	 */
 	dispatch(options) {
-		log('info', 'EMAIL SENT: ', options);
+		log('info', 'EMAIL: ', options);
+
+		if (!config.stage) {
+			return new Promise((resolve, reject) => {
+				resolve(true);
+			});
+		}
 
 		return mailer.sendMail({
 			...helpers.getDefaults(),
 			...options,
 		})
-			.catch(console.error);
+			.catch(error => log('error', error));
 	},
 };

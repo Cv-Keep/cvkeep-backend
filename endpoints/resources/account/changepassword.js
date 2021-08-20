@@ -1,76 +1,72 @@
 const log = require('logflake')('changepass');
+const { fnUser, fnEmail, fnActionUrl } = require('../../../functions/');
 
-const {
-	__user,
-	__email,
-	__actionUrl,
-} = require('../../../functions/');
-
-module.exports = (req, res) => {
-	let _user = {};
-
+module.exports = async (req, res) => {
 	const givenNewPass = req.body.new_pass;
 	const givenCurrentPass = req.body.current_pass;
-	const useremail = req.$user.email;
+	const userEmail = req.$user.email;
 
-	new Promise((resolve, reject) => {
-		if (givenNewPass.length < 8) {
-			reject('error.passwordMinLength');
-		}
+	const sendError = (error, status = 403) => {
+		log('error', status, error);
 
-		if (req.$user.hasPassword && givenNewPass === givenCurrentPass) {
-			reject('error.noDataChanged');
-		}
-
-		__user.get(useremail)
-			.then(resolve)
-			.catch(reject);
-	})
-		.then(user => {
-			_user = user;
-
-			return new Promise((resolve, reject) => {
-				if (!user) {
-					reject('error.userNotFound');
-				}
-
-				if (user.hasPassword && (!givenNewPass || !givenCurrentPass)) {
-					reject('error.notEnoughDataOrMalformedRequest');
-				}
-
-				if (user.hasPassword && __user.encodePassword(givenCurrentPass) != user.password) {
-					reject('error.incorrectCurrentPassword');
-				}
-
-				resolve(givenNewPass);
-			});
-		})
-		.then(newPass => {
-			return new Promise(async (resolve, reject) => {
-				const actionUrl = await __actionUrl.create({
-					user: useremail,
-					run: 'willChangePassword',
-					args: [useremail, newPass],
-				}).catch(reject);
-
-				resolve(actionUrl);
-			});
-		})
-		.then(actionUrl => {
-			__email.send({
-				actionUrl,
-				to: useremail,
-				locale: res.i18n.locale,
-				template: _user.hasPassword ? 'change-password' : 'create-password',
-				subject: _user.hasPassword ? 'Trocar a senha' : 'Criar uma senha',
-			})
-				.catch(console.error); ;
-
-			return res.status(200).json({ updated: true, errors: false, status: 'done' });
-		})
-		.catch(error => {
-			log('error', error);
-
-			return res.status(400).json({ errors: res.i18n.t(error.message || error) });
+		return res.status(status).json({
+			updated: false,
+			status: 'failed',
+			errors: res.i18n.t(error),
 		});
+	};
+
+	if (!givenNewPass || !givenCurrentPass || !userEmail) {
+		return sendError('error.notEnoughDataOrMalformedRequest');
+	}
+
+	const user = await fnUser.get(userEmail)
+		.catch(error => sendError(error, 500));
+
+	const errorFound = [
+		{
+			statusCode: 404,
+			message: 'error.userNotFound',
+			test: () => !!user,
+		},
+		{
+			statusCode: 403,
+			message: 'error.incorrectCurrentPassword',
+			test: () => user.hasPassword && fnUser.encodePassword(givenCurrentPass) === user.password,
+		},
+		{
+			statusCode: 403,
+			message: 'error.passwordMinLength',
+			test: () => givenNewPass.length >= 8,
+		},
+		{
+			statusCode: 400,
+			message: 'error.noDataChanged',
+			test: () => req.$user.hasPassword && givenNewPass !== givenCurrentPass,
+		},
+	].find(item => !item.test());
+
+	if (errorFound) {
+		return sendError(errorFound.message, errorFound.statusCode);
+	}
+
+	const actionUrl = await fnActionUrl.create({
+		user: userEmail,
+		run: 'willChangePassword',
+		args: [userEmail, givenNewPass],
+	}).catch(error => sendError(error, 500));
+
+	fnEmail.send({
+		actionUrl,
+		to: userEmail,
+		locale: res.i18n.locale,
+		template: user.hasPassword ? 'change-password' : 'create-password',
+		subject: res.i18n.t(user.hasPassword ? 'changePassword' : 'createPassword'),
+	}).catch(error => sendError(error, 500));
+
+	res.status(200).json({
+		updated: true,
+		errors: false,
+		status: 'done',
+	});
 };

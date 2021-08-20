@@ -1,38 +1,29 @@
 const log = require('logflake')('action-url');
+const { fnAuth, fnUtils, fnActionUrl } = require('../../../functions/');
 
-const {
-	__auth,
-	__utils,
-	__actionUrl,
-} = require('../../../functions/');
-
-module.exports = (req, res) => {
-	let action = undefined;
+module.exports = async (req, res) => {
 	const hash = req.params.hash;
+	let action = undefined;
 
-	return new Promise((resolve, reject) => {
-		try {
-			action = __actionUrl.decodeActionUrl(hash);
-		} catch (error) {
-			reject(error);
-		}
-
-		__actionUrl.perform(action)
-			.then(resolve)
-			.catch(reject);
-	}).then(() => {
-		let successMessage = res.i18n.t('success.actionUrlExec');
-
-		if (action.method === 'willDeactivateAccount') {
-			successMessage = res.i18n.t('success.accountDeactivated');
-		}
-
-		__auth.signOut(res, 200);
-
-		return __utils.successPage(res, successMessage, 'disconnectAllTabs');
-	}).catch(error => {
+	const sendError = error => {
 		log('error', error);
 
-		return __utils.errorPage(res, res.i18n.t(error));
-	});
+		return fnUtils.errorPage(res, res.i18n.t(error));
+	};
+
+	try {
+		action = fnActionUrl.decodeActionUrl(hash);
+	} catch (error) {
+		sendError(error);
+	}
+
+	fnActionUrl.perform(action)
+		.then(() => {
+			const isDeactivating = action.method === 'willDeactivateAccount';
+			const successMessage = res.i18n.t(isDeactivating ? 'success.accountDeactivated' : 'success.actionUrlExec');
+
+			fnAuth.signOut(res, 200);
+			return fnUtils.successPage(res, successMessage, 'disconnectAllTabs');
+		})
+		.catch(sendError);
 };

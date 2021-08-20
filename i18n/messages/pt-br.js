@@ -1,8 +1,11 @@
 /* eslint-disable max-len */
 module.exports = {
+	yourName: 'Seu nome',
+	changePassword: 'Trocar a senha',
+	createPassword: 'Criar uma senha',
+
 	success: {
 		usernameAvailable: 'Este nome de usuário está disponível',
-		usernameUnvailable: 'Este nome de usuário está indisponível',
 		messageSuccessfullySent: 'Mensage enviada com sucesso',
 		languageSuccessfullyChanged: 'Idioma atualizado com sucesso!',
 		requestSent: 'Solicitaçã enviada com sucesso',
@@ -18,10 +21,12 @@ module.exports = {
 		invalidPassword: 'Senha inválida',
 		noDataChanged: 'Nenhum dado foi modificado',
 		notDataToModify: 'Nenhum dado a ser modificado',
+		userOrCvNotFound: 'Usuário ou CV não encontrado',
 		userNotFound: 'Usuário não encontrado',
 		missingUser: 'Usuário inexistente',
 		missingCv: 'Currículo inexistente',
 		couldNotLogin: 'Nao foi possível efetuar o login',
+		usernameUnvailable: 'Este nome de usuário está indisponível',
 		internalUnexpectedError: 'Erro interno inesperado',
 		invalidUserOrPassword: 'Usuário ou senha inválidos',
 		nonExistentUserOrFile: 'Usuário ou arquivo inexistente',

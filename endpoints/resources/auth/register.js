@@ -1,85 +1,88 @@
 const log = require('logflake')('register');
-
-const {
-	__user,
-	__email,
-} = require('../../../functions/');
+const { fnUser, fnEmail } = require('../../../functions/');
 
 module.exports = async (req, res) => {
-	let newUser = req.body;
-
+	const newUser = req.body;
 	const email = newUser.email;
 	const emailConfirmation = newUser.email_confirmation;
 
-	new Promise(async (resolve, reject) => {
-		if (!__email.confirmationEmailsMatch(email, emailConfirmation)) {
-			reject('error.invalidEmailOrConfirmationEmail');
+	const sendError = (error, status = 403) => {
+		log('error', status, error);
+
+		return res.status(status).json({ errors: res.i18n.t(error) });
+	};
+
+	const validations = [
+		{
+			statusCode: 403,
+			message: 'error.invalidEmailOrConfirmationEmail',
+			test: () => fnEmail.confirmationEmailsMatch(email, emailConfirmation),
+		},
+		{
+			statusCode: 403,
+			message: 'error.invalidEmailOrConfirmationEmail',
+			test: () => fnEmail.areValidEmails([email, emailConfirmation]),
+		},
+		{
+			statusCode: 403,
+			message: 'error.atLeastOneEmailIsInvalid',
+			test: async () => await fnEmail.checkMX(email),
+		},
+		{
+			statusCode: 403,
+			message: 'error.emailNotAvailableToUse',
+			test: async () => !await fnUser.get(email),
+		},
+	];
+
+	for (let i = 0; i < validations.length; i++) {
+		const validation = validations[i];
+
+		if (!await validation.test()) {
+			return sendError(validation.message, validation.statusCode);
 		}
+	}
 
-		if (!__email.areValidEmails([email, emailConfirmation])) {
-			reject('error.invalidEmailOrConfirmationEmail');
-		}
+	fnUser.isRegistering(email)
+		.then(async ongoing => {
+			const allDone = (data) => {
+				const message = ongoing ?
+					'success.registrationEmailSent' : 'error.alreadyRegistering';
 
-		if (!await __email.checkMX(email)) {
-			reject('error.atLeastOneEmailIsInvalid');
-		}
+				fnEmail.send({
+					template: 'register',
+					locale: res.i18n.locale,
+					to: data.registering.email,
+					hash: data.registering.hash,
+					subject: res.i18n.t('success.registeringEmailSubject'),
+				})
+					.catch(error => sendError(error, 500));
 
-		resolve(true);
-	}).then(() => {
-		return new Promise(async (resolve, reject) => {
-			const userExists = await __user.get(email).catch(reject);
-			const thereIsARegistration = await __user.isRegistering(email).catch(reject);
+				return res.status(200).json({
+					error: false,
+					status: true,
+					message: res.i18n.t(message),
+				});
+			};
 
-			if (userExists) {
-				reject('error.emailNotAvailableToUse');
-			}
-
-			if (thereIsARegistration) {
-				newUser = thereIsARegistration;
+			if (ongoing) {
+				fnUser.updateRegistering(ongoing)
+					.then(() => allDone(ongoing))
+					.catch(error => sendError(error, 500));
 			} else {
-				newUser.registering = {
-					renewed: 0,
-					email: email,
-					created: new Date(),
-					hash: __user.createRegisteringHash(email),
-				};
+				Object.assign(newUser, {
+					registering: {
+						renewed: 0,
+						email: email,
+						created: new Date(),
+						hash: fnUser.createRegisteringHash(email),
+					},
+				});
+
+				fnUser.register(newUser)
+					.then(() => allDone(newUser))
+					.catch(error => sendError(error, 500));
 			}
-
-			resolve({ isNew: !thereIsARegistration });
-		});
-	}).then(registration => {
-		return new Promise(async (resolve, reject) => {
-			let status = undefined;
-
-			if (registration.isNew) {
-				status = await __user.register(newUser)
-					.catch(reject);
-			} else {
-				status = await __user.updateRegistering(newUser)
-					.catch(reject);
-			}
-
-			resolve({
-				error: false,
-				status: status,
-				message: res.i18n.t(registration.isNew ? 'success.registrationEmailSent' : 'error.alreadyRegistering'),
-			});
-		});
-	})
-		.then(result => {
-			__email.send({
-				template: 'register',
-				locale: res.i18n.locale,
-				to: newUser.registering.email,
-				hash: newUser.registering.hash,
-				subject: res.i18n.t('success.registeringEmailSubject'),
-			})
-				.catch(console.error); ;
-
-			return res.status(200).json(result);
-		}).catch(error => {
-			log('error', error);
-
-			res.status(403).json({ errors: res.i18n.t(error) });
-		});
+		})
+		.catch(error => sendError(error, 500));
 };

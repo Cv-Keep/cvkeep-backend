@@ -7,7 +7,6 @@ const {
 	__cv,
 	__user,
 	__auth,
-	__utils,
 } = require('../../../../functions/');
 
 module.exports = (req, res) => {
@@ -45,11 +44,12 @@ module.exports = (req, res) => {
 						resolve(user);
 					} else {
 						const username = md5(`${Date.now()}.${data.email}.${data.id}`);
-						const curriculum = __utils.schema('curriculum');
 
-						curriculum.email = data.email;
-						curriculum.username = username;
-						curriculum.basics.fullname = data.name;
+						const curriculum = {
+							email: data.email,
+							username: username,
+							basics: { fullname: data.name },
+						};
 
 						const credentials = {
 							active: true,

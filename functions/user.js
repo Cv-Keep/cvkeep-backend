@@ -1,10 +1,15 @@
 const md5 = require('md5');
 const config = require('../config');
-const __db = require('../database/');
+const log = require('logflake')('user');
 const __cv = require('./cv.js');
 const __utils = require('./utils.js');
 const __email = require('./email.js');
 const __userFiles = require('./userFiles.js');
+
+const Credentials = require('../models/credentials.js');
+const Registering = require('../models/registering.js');
+const Curriculum = require('../models/curriculum.js');
+const ForgotPass = require('../models/forgotPass.js');
 
 module.exports = {
 	get(query, options = {}) {
@@ -12,19 +17,18 @@ module.exports = {
 			query = { email: query };
 		}
 
-		return new Promise((resolve, reject) => {
-			__db.credentials.findOne(query, (error, credentials) => {
+		return new Promise(async (resolve, reject) => {
+			Credentials.findOne(query, (error, credentials) => {
 				if (error) {
 					reject(error);
 					return false;
 				}
 
 				if (!credentials) {
-					resolve(credentials);
+					resolve(null);
 					return false;
 				}
 
-				credentials = __utils.schema('credentials', credentials);
 				credentials.hasPassword = !!credentials.password;
 
 				if (options.sanitize) {
@@ -39,15 +43,11 @@ module.exports = {
 	},
 
 	create(data) {
-		data = __utils.schema('credentials', data);
-
-		['email', 'username'].forEach(item => {
-			if (!data[item]) {
-				throw new Error(`Error while creating user, ${item} is undefined`);
-			}
-		});
-
 		return new Promise((resolve, reject) => {
+			if (!data.email || !data.username) {
+				reject(`Error while creating user, ${item} is undefined`);
+			}
+
 			data.username = __utils.slugify(data.username);
 
 			const findUserQuery = {
@@ -59,15 +59,15 @@ module.exports = {
 				],
 			};
 
-			__db.credentials.findOne(findUserQuery, (error, user) => {
+			Credentials.findOne(findUserQuery, (error, user) => {
 				if (error || user) {
 					const eqEmail = user.email == data.email;
 					const duplicate = eqEmail ? 'error.emailAlreadyTaken' : 'error.usernameAlreadyTaken';
 
-					reject(error || duplicate);
+					return reject(error || duplicate);
 				}
 
-				__db.credentials.save(data, (error, state) => {
+				new Credentials(data).save((error, state) => {
 					error ? reject(error) : resolve(state);
 				});
 			});
@@ -92,8 +92,8 @@ module.exports = {
 		return new Promise((resolve, reject) => {
 			delete data._id;
 
-			__db.credentials.update(query, { $set: { ...data } }, options, (error, status) => {
-				(!error && status.ok) ? resolve(status) : reject(error || `Error: DB Query Status: ${ status.ok }`);
+			Credentials.findOneAndUpdate(query, { $set: { ...data } }, options, (error, status) => {
+				!error ? resolve(status) : reject(error);
 			});
 		});
 	},
@@ -106,7 +106,7 @@ module.exports = {
 		return new Promise((resolve, reject) => {
 			const query = { 'email': email };
 
-			__db.credentials.update(query, { $set: { active: true } }, { upsert: false }, (error, status) => {
+			Credentials.findOneAndUpdate(query, { $set: { active: true } }, { upsert: false }, (error, status) => {
 				error ? reject(error) : resolve(status.modified);
 			});
 		});
@@ -118,35 +118,32 @@ module.exports = {
 
 	register(newUser) {
 		return new Promise((resolve, reject) => {
-			__db.registering.save(newUser, (error, status) => {
+			const User = new Registering(newUser);
+
+			User.save(newUser, (error, status) => {
 				error ? reject(error) : resolve(status);
 			});
 		});
 	},
 
-	updateRegistering(newUser) {
-		const daysPassed = __utils.secsToDays(newUser.registering.created);
-
+	updateRegistering(data) {
 		return new Promise((resolve, reject) => {
-			if (daysPassed > 2) {
-				++newUser.registering.renewed;
+			data.registering.hash = this.createRegisteringHash(data.email);
 
-				newUser.registering.hash = this.createRegisteringHash(email);
+			const query = {
+				find: { 'registering.email': data.email },
+				set: { $set: { registering: data.registering } },
+			};
 
-				const query = { 'registering.email': newUser.email };
-
-				__db.registering.update(query, { $set: { registering: newUser.registering } }, (error, status) => {
-					(!error && status.ok) ? resolve(status) : reject(error || `Error: DB Query Status: ${ status.ok }`);
-				});
-			} else {
-				resolve(newUser);
-			}
+			Registering.findOneAndUpdate(query.find, query.set, (error, status) => {
+				!error ? resolve(status) : reject(error);
+			});
 		});
 	},
 
 	isRegistering(email) {
 		return new Promise((resolve, reject) => {
-			__db.registering.findOne({ 'registering.email': email }, (error, user) => {
+			Registering.findOne({ 'registering.email': email }, (error, user) => {
 				error ? reject(error) : resolve(user);
 			});
 		});
@@ -154,7 +151,7 @@ module.exports = {
 
 	getRegisteringByHash(hash) {
 		return new Promise((resolve, reject) => {
-			__db.registering.findOne({ 'registering.hash': hash }, (error, status) => {
+			Registering.findOne({ 'registering.hash': hash }, (error, status) => {
 				error ? reject(error) : resolve(status);
 			});
 		});
@@ -162,7 +159,7 @@ module.exports = {
 
 	removeRegistering(hash) {
 		return new Promise((resolve, reject) => {
-			__db.registering.remove({ 'registering.hash': hash }, (error, status) => {
+			Registering.deleteOne({ 'registering.hash': hash }, (error, status) => {
 				error ? reject(error) : resolve(status);
 			});
 		});
@@ -170,16 +167,6 @@ module.exports = {
 
 	encodePassword(pass) {
 		return md5(`${pass}/${config.secret}`);
-	},
-
-	generateRandomPassword: () => {
-		return generatePass.generate({
-			length: 8,
-			strict: true,
-			numbers: true,
-			uppercase: true,
-			excludeSimilarCharacters: true,
-		});
 	},
 
 	passwordsMatch(passA, passB, encode = false) {
@@ -196,10 +183,12 @@ module.exports = {
 			const alreadyExists = await this.get({ email: newEmail });
 
 			if (!alreadyExists) {
+				const setNewEmail = { $set: { email: newEmail } };
+
 				try {
-					await __db.curriculum.update({ email: currentEmail }, { $set: { email: newEmail } });
-					await __db.forgotpass.update({ email: currentEmail }, { $set: { email: newEmail } });
-					await __db.credentials.update({ email: currentEmail }, { $set: { email: newEmail } });
+					await Curriculum.findOneAndUpdate({ email: currentEmail }, setNewEmail);
+					await ForgotPass.findOneAndUpdate({ email: currentEmail }, setNewEmail);
+					await Credentials.findOneAndUpdate({ email: currentEmail }, setNewEmail);
 
 					resolve(true);
 				} catch (error) {
@@ -243,20 +232,19 @@ module.exports = {
 			const query = { 'email': email };
 			const set = { hash: hash, created: new Date() };
 
-			__db.forgotpass.update(query, { $set: set }, { upsert: true }, (error, status) => {
-				if (!error && status.ok) {
+			ForgotPass.findOneAndUpdate(query, { $set: set }, { upsert: true }, error => {
+				if (!error) {
 					__email.send({
 						to: email,
 						subject: 'Nova Senha',
 						template: 'forgotpass',
 						hash: hash,
 						locale: res.i18n.locale,
-					})
-						.catch(console.error); ;
+					}).catch(error => log('error', error));
 
-					resolve({ ok: true });
+					resolve({ ok: true, errors: false });
 				} else {
-					reject({ errors: [error || `Error: DB Query Status: ${ status.ok }`] });
+					reject(error);
 				}
 			});
 		});
@@ -264,7 +252,7 @@ module.exports = {
 
 	removeForgotPass(hash) {
 		return new Promise((resolve, reject) => {
-			return __db.forgotpass.remove({ hash: hash }, (error, data) => {
+			return ForgotPass.deleteOne({ hash: hash }, (error, data) => {
 				(error || !data) ? reject(error || 'error.internalUnexpectedError') : resolve(data);
 			});
 		});
@@ -272,7 +260,7 @@ module.exports = {
 
 	validateForgottenPassHash(hash) {
 		return new Promise((resolve, reject) => {
-			__db.forgotpass.findOne({ hash: hash}, (error, data) => {
+			ForgotPass.findOne({ hash: hash}, (error, data) => {
 				(error || !data) ? reject(error || 'error.invalidToken') : resolve(data);
 			});
 		}).then(data => {
@@ -282,7 +270,7 @@ module.exports = {
 				if (hashAgeInDays <= 2) {
 					resolve(true);
 				} else {
-					__db.forgotpass.remove({ hash: hash });
+					ForgotPass.deleteOne({ hash: hash });
 					resolve(false);
 				}
 			});
@@ -321,5 +309,9 @@ module.exports = {
 				.then(resolve)
 				.catch(reject);
 		});
+	},
+
+	getSchema(data = {}) {
+		return new Credentials(data);
 	},
 };

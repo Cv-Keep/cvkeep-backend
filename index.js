@@ -8,9 +8,11 @@ const fileUploader = require('express-fileupload');
 const bearerToken = require('express-bearer-token');
 const i18n = require('./i18n');
 const cors = require('./cors.js');
+const log = require('logflake')('app');
 
-const __fn = require('./functions/');
-const __db = require('./database/');
+/** database */
+
+require('./database/');
 
 /** app && /status **/
 
@@ -28,18 +30,18 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser(config.secret));
 app.use(fileUploader({ createParentPath: true }));
-
 app.use(config.base, routes);
 
 /** init **/
 
 if (config.stage === 'test') {
-	app.fn = __fn;
-	app.__db = __db;
+	app.fn = require('./functions/');
 
 	module.exports = app;
 } else {
 	app.listen(config.port, () => {
-		console.log(`Server is running with stage "${ config.stage || 'development' }" on port ${config.port }`);
+		/* eslint-disable max-len */
+		log('info', `Server is running with stage "${ config.stage || 'development' }" on port ${config.port }\nEnv from: "${config.envPath}" `);
+		/* eslint-enable max-len */
 	});
 }

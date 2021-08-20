@@ -1,53 +1,50 @@
 const jwt = require('./jwt');
 const config = require('../config');
-const __user = require('./user.js');
 const log = require('logflake')('auth');
+const fnUser = require('./user.js');
 
 module.exports = {
-	async signIn(credentials, res) {
-		['email', 'username'].forEach(item => {
-			if (!credentials[item]) {
-				return false;
+	signIn(credentials, res) {
+		return new Promise((resolve, reject) => {
+			const maxAge = 365 * 24 * 60 * 60 * 1000;
+
+			if (!credentials.email || !credentials.username) {
+				return reject(res.i18n.t('error.invalidLoginAttempt'));
+			}
+
+			if (!credentials.active) {
+				fnUser.reactivate(credentials.email);
+			}
+
+			try {
+				const token = jwt.sign(credentials);
+
+				res.cookie(config.jwtCookieName, token, {
+					httpOnly: true,
+					maxAge: maxAge,
+					signed: true,
+					secure: true,
+					sameSite: 'none',
+				});
+
+				resolve({
+					jwt: token,
+					logged: true,
+					messages: [],
+					user: credentials,
+				});
+			} catch (error) {
+				log('error', error);
+
+				reject(error);
 			}
 		});
-
-		let token = undefined;
-		const maxAge = 365 * 24 * 60 * 60 * 1000;
-
-		delete credentials.password;
-		delete credentials.confirm_password;
-
-		if (!credentials.active) {
-			await __user.reactivate(credentials.email);
-		}
-
-		try {
-			token = jwt.sign(credentials);
-
-			res.cookie(config.jwtCookieName, token, {
-				httpOnly: true,
-				maxAge: maxAge,
-				signed: true,
-				secure: true,
-				sameSite: 'none',
-			});
-		} catch (error) {
-			log('error', error);
-
-			return false;
-		}
-
-		return {
-			jwt: token,
-			logged: true,
-			messages: [],
-			user: credentials,
-		};
 	},
 
 	getLoggedUser(req) {
 		const token = req.signedCookies[config.jwtCookieName];
-		return token ? jwt.verify(token) : false;
+
+		return token ? jwt.verify(token) : null;
 	},
 
 	signOut(res, statusCode = 200) {

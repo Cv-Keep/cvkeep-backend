@@ -1,14 +1,16 @@
-const { __user } = require('../../../functions/');
+const { fnUser } = require('../../../functions/');
 
 module.exports = (req, res) => {
 	const userEmail = req.$user.email;
 	const avatar = req.files ? req.files.avatar : req.body.avatar;
 
 	if (!userEmail.trim() || !req.$user.username || !avatar) {
-		return res.status(400).json({ error: res.i18n.t('error.internalUnexpectedError') });
+		return res.status(400).json({
+			error: res.i18n.t('error.internalUnexpectedError'),
+		});
 	}
 
-	__user.setAvatar(userEmail, avatar)
+	fnUser.setAvatar(userEmail, avatar)
 		.then(resource => res.status(200).json({ error: false, avatarUrl: resource }))
-		.catch(error => res.status(400).json({ error: res.i18n.t(error) }));
+		.catch(error => res.status(400).json({ error: res.i18n.t(error), avatarUrl: null }));
 };

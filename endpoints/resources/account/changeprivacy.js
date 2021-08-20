@@ -1,34 +1,35 @@
 const log = require('logflake')('change-privacy');
+const { fnCv, fnUser } = require('../../../functions/');
 
-const {
-	__cv,
-	__user,
-} = require('../../../functions/');
-
-module.exports = (req, res) => {
-	const useremail = req.$user.email;
+module.exports = async (req, res) => {
+	const userEmail = req.$user.email;
 	const privacy = req.body.privacy;
+
+	const sendError = (error, status = 400) => {
+		log('error', status, error);
+
+		return res.status(400).json({
+			updated: false,
+			errors: [error],
+		});
+	};
 
 	const cvPrivacy = {
 		allowPublicMessages: privacy.allowPublicMessages,
 		passwordProtected: privacy.cvPasswordProtected.enabled,
 	};
 
-	if (!privacy || !useremail) {
-		return res.status(400).json({ updated: false, errors: ['error.notEnoughDataOrMalformedRequest'] });
+	if (!privacy || !userEmail) {
+		return sendError('error.notEnoughDataOrMalformedRequest');
 	}
 
-	new Promise(async (resolve, reject) => {
-		const userUpdateStatus = await __user.update(useremail, { privacy }).catch(reject);
-		const cvUpdateStatus = await __cv.update(useremail, cvPrivacy).catch(reject);
-		resolve({ userUpdateStatus, cvUpdateStatus });
-	})
-		.then(status => {
-			return res.status(200).json({ updated: true, errors: false, status: status });
-		})
-		.catch(error => {
-			log('error', error);
+	const userUpdateStatus = await fnUser.update(userEmail, { privacy })
+		.catch(error => sendError(error, 500));
 
-			return res.status(500).json({ updated: false, errors: [res.i18n.t(error)] });
-		});
+	const cvUpdateStatus = await fnCv.update(userEmail, cvPrivacy)
+		.catch(error => sendError(error, 500));
+
+	userUpdateStatus && cvUpdateStatus ?
+		res.status(200).json({ updated: true, errors: false }) :
+		sendError('error.internalUnexpectedError', 500);
 };

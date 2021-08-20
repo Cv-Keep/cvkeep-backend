@@ -1,11 +1,11 @@
-const __db = require('../../../database/');
-const { __ngrams } = require('../../../functions/');
+const { fnNgrams } = require('../../../functions/');
+const CvSearchIndex = require('./../../../models/cvSearchIndex.js');
 
 module.exports = async (req, res) => {
 	res.connection.setTimeout(300000);
 
 	const subject = req.query.subject || '';
-	const search = `${subject} ${__ngrams.generate(subject).join(' ')}`;
+	const search = `${subject} ${fnNgrams.generate(subject).join(' ')}`;
 
 	const page = (Number(req.query.page) || 0);
 	const offset = Number(req.query.offset) || 100;
@@ -24,28 +24,12 @@ module.exports = async (req, res) => {
 		},
 	};
 
-	// create text index
-
-	await __db.cvSearchIndex.createIndex(
-		{
-			'ngrams': 'text',
-			'rawtext': 'text',
-		},
-		{
-			weights: {
-				ngrams: 10,
-				rawtext: 5,
-			},
-			name: 'TextIndex',
-		},
-	);
-
 	// search for results
 
 	const result = await new Promise((resolve, reject) => {
 		const cb = (err, docs) => err ? reject(err) : resolve(docs);
 
-		__db.cvSearchIndex.aggregate([
+		CvSearchIndex.aggregate([
 			{
 				$match: match,
 			},
@@ -80,18 +64,14 @@ module.exports = async (req, res) => {
 			{
 				$limit: offset,
 			},
-		], cb);
+		]).exec(cb);
 	});
 
 	// count total items
 
-	const totalCount = await new Promise((resolve, reject) => {
-		const cb = (err, docs) => err ? reject(err) : resolve(docs);
-
-		__db.cvSearchIndex
-			.find(match)
-			.count(cb);
-	});
+	const totalCount = await CvSearchIndex
+		.find(match)
+		.estimatedDocumentCount();
 
 	// send response
 

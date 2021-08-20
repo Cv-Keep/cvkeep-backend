@@ -1,10 +1,7 @@
 const path = require('path');
 const stage = process.env.NODE_ENV || '';
 const envUtils = require('./envUtils.js');
-
 const env = envUtils.getEnv();
-const envPath = envUtils.getEnvPath();
-console.log(`Environment: "${stage}". Using .env file "${envPath}"`);
 
 module.exports = {
 	stage: stage,
@@ -15,6 +12,7 @@ module.exports = {
 	serverURL: env.SERVER_URL,
 	brandName: env.BRAND_NAME,
 	defaultLang: env.DEFAULT_LANG,
+	envPath: envUtils.getEnvPath(),
 	jwtCookieName: env.JWT_COOKIE_NAME,
 	mailer: JSON.parse(env.MAILER_CONFIG),
 	debug: process.env.DEBUG || env.DEBUG,

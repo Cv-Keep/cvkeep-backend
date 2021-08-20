@@ -1,5 +1,4 @@
 const config = require('./../config');
-const applySchema = require('./../schemas');
 const fs = require('fs');
 const rimraf = require('rimraf');
 const _slugify = require('slugify');
@@ -34,16 +33,6 @@ module.exports = {
 			.trim();
 
 		return str;
-	},
-
-	secsToDays(secs) {
-		const currentTime = new Date().getTime();
-
-		return (currentTime - new Date(secs).getTime()) / (1000 * 3600 * 24);
-	},
-
-	schema(schema, object) {
-		return applySchema(schema, object);
 	},
 
 	mkdirp(path) {

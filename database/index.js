@@ -1,26 +1,17 @@
-const mongojs = require('mongojs');
+const log = require('logflake')('db');
+const mongoose = require('mongoose');
 const config = require('./../config');
 
-/** db instance **/
-
-const db = mongojs(config.mongoURI);
-
-/** collections **/
-
-db.collection('application');
-db.collection('registering');
-db.collection('credentials');
-db.collection('curriculum');
-db.collection('forgotpass');
-db.collection('visitors');
-db.collection('cvSearchIndex');
-
-/** events */
-
-db.on('error', error => {
-	console.error('FATAL: Database Error ', error);
+mongoose.connect(config.mongoURI, {
+	poolSize: 100,
+	useCreateIndex: true,
+	useNewUrlParser: true,
+	useFindAndModify: false,
+	useUnifiedTopology: true,
+	socketTimeoutMS: 1800000,
 });
 
-/** -------------------------------- **/
+const db = mongoose.connection;
+db.on('error', error => log('error', error));
 
 module.exports = db;

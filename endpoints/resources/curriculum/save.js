@@ -1,33 +1,35 @@
 const log = require('logflake')('save-cv');
-
-const {
-	__cv,
-	__badwords,
-} = require('../../../functions/');
+const { fnCv } = require('../../../functions/');
 
 module.exports = async (req, res) => {
 	const loggedUser = req.$user;
-	let curriculum = req.body.curriculum;
-
+	const curriculum = req.body.curriculum;
 	const isValidLoggedUser = loggedUser && loggedUser.email && loggedUser.username;
 	const isValidCurriculum = curriculum && curriculum.username && (loggedUser.username === curriculum.username);
 
-	if (!isValidLoggedUser || !isValidCurriculum) {
-		return res.status(403).json({
-			errors: [res.i18n.t('error.youHaveNoPermission')],
-			details: { isValidUser: isValidLoggedUser, isValidCv: isValidCurriculum },
+	const sendError = (error, details, status = 500) => {
+		log('error', error, details, status);
+
+		return res.status(status).json({
+			details,
+			errors: [res.i18n.t(error)],
 		});
-	} else {
-		curriculum = __badwords.cleanObject(curriculum);
+	};
 
-		__cv.update(loggedUser.email, curriculum)
-			.then(() => {
-				return res.status(200).json({ errors: false, saved: true });
-			})
-			.catch(error => {
-				log('error', error);
+	if (!isValidLoggedUser || !isValidCurriculum) {
+		const errorDetails = {
+			isValidUser: isValidLoggedUser,
+			isValidCv: isValidCurriculum,
+		};
 
-				return res.status(500).json({ errors: [res.i18n.t('error.internalUnexpectedError')] });
-			});
+		return sendError('error.youHaveNoPermission', errorDetails, 403);
 	}
+
+	fnCv.update(loggedUser.email, curriculum)
+		.then(() => res.status(200).json({ errors: false, saved: true }))
+		.catch(error => {
+			log('error', error);
+
+			return sendError('error.internalUnexpectedError', {}, 500);
+		});
 };

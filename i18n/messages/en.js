@@ -1,8 +1,11 @@
 /* eslint-disable max-len */
 module.exports = {
+	yourName: 'Your name',
+	changePassword: 'Change password',
+	createPassword: 'Create password',
+
 	success: {
 		usernameAvailable: 'This username is available',
-		usernameUnvailable: 'This username is unavailable',
 		messageSuccessfullySent: 'Message successfully sent',
 		languageSuccessfullyChanged: 'Language successfully updated!',
 		requestSent: 'Request successfully sent',
@@ -19,9 +22,11 @@ module.exports = {
 		noDataChanged: 'No data has been modified',
 		notDataToModify: 'No data to be modified',
 		userNotFound: 'User not found',
+		userOrCvNotFound: 'User or CV not found',
 		missingUser: 'User does not exist',
 		missingCv: 'Curriculum nonexistent',
 		couldNotLogin: 'Couldn\'t log in',
+		usernameUnvailable: 'This username is unavailable',
 		internalUnexpectedError: 'Unexpected internal error',
 		invalidUserOrPassword: 'Username or password is invalid',
 		nonExistentUserOrFile: 'User or file does not exist',

@@ -1,6 +1,6 @@
 const config = require('../config');
-const __user = require('./user.js');
-const __encryption = require('./encryption.js');
+const fnUser = require('./user.js');
+const fnEncryption = require('./encryption.js');
 
 module.exports = {
 	/**
@@ -29,10 +29,10 @@ module.exports = {
 		const args = params.args;
 
 		return new Promise(async (resolve, reject) => {
-			const user = await __user.get(userEmail).catch(reject);
+			const user = await fnUser.get(userEmail).catch(reject);
 
 			if (user) {
-				const pendingUrlActions = user.pendingUrlActions;
+				const pendingUrlActions = user.pendingUrlActions || {};
 
 				pendingUrlActions[method] = {
 					method,
@@ -40,7 +40,7 @@ module.exports = {
 					arguments: typeof args != 'object' ? [args] : args,
 				};
 
-				await __user.update(userEmail, { pendingUrlActions }, { upsert: true }).catch(reject);
+				await fnUser.update(userEmail, { pendingUrlActions }, { upsert: true }).catch(reject);
 				const actionUrl = this.encodeActionUrl(pendingUrlActions[method]);
 
 				resolve(actionUrl);
@@ -55,13 +55,13 @@ module.exports = {
 		const userEmail = action.userEmail;
 
 		return new Promise(async (resolve, reject) => {
-			const user = await __user.get(userEmail).catch(reject);
+			const user = await fnUser.get(userEmail).catch(reject);
 			const pendingUrlActions = user && user.pendingUrlActions ? user.pendingUrlActions : false;
 			const action = user && pendingUrlActions[method] ? pendingUrlActions[method] : false;
 
 			if (user && action) {
 				delete pendingUrlActions[method];
-				await __user.update(userEmail, { pendingUrlActions });
+				await fnUser.update(userEmail, { pendingUrlActions });
 
 				resolve(this[method](...action.arguments));
 			} else {
@@ -73,7 +73,7 @@ module.exports = {
 	encodeActionUrl(params) {
 		const baseUrl = config.serverURL;
 		const paramsAsText = JSON.stringify(params);
-		const hashUrl = __encryption.encText(paramsAsText);
+		const hashUrl = fnEncryption.encText(paramsAsText);
 
 		return `${baseUrl}/hash-action/${hashUrl}`;
 	},
@@ -81,7 +81,7 @@ module.exports = {
 	decodeActionUrl(url) {
 		const baseUrl = config.serverURL;
 		const encoded = url.toLowerCase().replace(`${baseUrl}/hash-action/`);
-		const decoded = __encryption.decText(encoded);
+		const decoded = fnEncryption.decText(encoded);
 
 		return JSON.parse(decoded);
 	},
@@ -89,18 +89,18 @@ module.exports = {
 	// actions -----------------------------------------------
 
 	willChangeUsername(userEmail, newUsername) {
-		return __user.changeUsername(userEmail, newUsername);
+		return fnUser.changeUsername(userEmail, newUsername);
 	},
 
 	willChangePassword(userEmail, newPass) {
-		return __user.changePassword(userEmail, newPass);
+		return fnUser.changePassword(userEmail, newPass);
 	},
 
 	willChangeEmail(userEmail, newEmail) {
-		return __user.changeEmail(userEmail, newEmail);
+		return fnUser.changeEmail(userEmail, newEmail);
 	},
 
 	willDeactivateAccount(userEmail) {
-		return __user.deactivateAccount(userEmail);
+		return fnUser.deactivateAccount(userEmail);
 	},
 };

@@ -1,34 +1,35 @@
-const {
-	__user,
-	__auth,
-} = require('../../../functions/');
+const log = require('logflake')('signin');
+const { fnUser, fnAuth } = require('../../../functions/');
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
 	const credentials = req.body;
 
-	new Promise((resolve, reject) => {
-		if (!credentials.email || !credentials.password) {
-			reject('error.requiredUserAndPassword');
-		}
+	const sendError = (error, status = 403) => {
+		log('error', status, error);
 
-		__user.get(credentials.email)
-			.then(user => {
-				user ? resolve(user) : reject('error.invalidUserOrPassword');
-			});
-	})
-		.then(user => {
-			return new Promise((resolve, reject) => {
-				const encodedPass = __user.encodePassword(credentials.password);
-				const passwordOk = __user.passwordsMatch(encodedPass, user.password);
-
-				passwordOk ? resolve(user) : reject('error.invalidUserOrPassword');
-			});
-		})
-		.then(async user => {
-			const logged = await __auth.signIn(user, res);
-
-			res.status(200).json(logged);
-		}).catch(error => {
-			res.status(403).json({errors: [res.i18n.t(error)]} || res.i18n.t('internalUnexpectedError'));
+		return res.status(status).json({
+			errors: [res.i18n.t(error)],
 		});
+	};
+
+	if (!credentials.email || !credentials.password) {
+		return sendError('error.requiredUserAndPassword');
+	}
+
+	const user = await fnUser.get(credentials.email)
+		.catch(error => sendError(error, 500));
+
+	if (!user) {
+		return sendError('error.invalidUserOrPassword');
+	}
+
+	const encodedPass = fnUser.encodePassword(credentials.password);
+	const passwordOk = fnUser.passwordsMatch(encodedPass, user.password);
+
+	if (!passwordOk) {
+		return sendError('error.invalidUserOrPassword');
+	}
+
+	const logged = await fnAuth.signIn(user.toObject(), res);
+	res.status(200).json(logged);
 };

@@ -1,5 +1,7 @@
-const __db = require('../database');
 const __ngrams = require('./ngrams.js');
+const Credentials = require('../models/credentials.js');
+const Curriculum = require('../models/curriculum.js');
+const CvSearchIndex = require('../models/cvSearchIndex.js');
 
 module.exports = {
 	_flatObjectStrings(obj) {
@@ -48,13 +50,13 @@ module.exports = {
 		const options = { upsert: true, multi: true };
 
 		const user = await new Promise((resolve, reject) => {
-			__db.credentials.findOne({ email: userEmail }, (err, doc) => {
+			Credentials.findOne({ email: userEmail }, (err, doc) => {
 				err ? reject(err) : resolve(doc);
 			});
 		});
 
 		return new Promise((resolve, reject) => {
-			__db.curriculum.findOne({ email: userEmail }, (err, data) => {
+			Curriculum.findOne({ email: userEmail }, (err, data) => {
 				if (err) return reject(err);
 
 				const toInsert = {
@@ -68,10 +70,8 @@ module.exports = {
 					rawtext: this._generateCvRawText(data).join(' '),
 				};
 
-				__db.cvSearchIndex.update({ cvId: data._id }, { $set: {...toInsert} }, options, (err, doc) => {
-					err && reject(err, doc);
-
-					resolve(doc);
+				CvSearchIndex.findOneAndUpdate({ cvId: data._id }, { $set: {...toInsert} }, options, (err, doc) => {
+					err ? reject(err, doc) : resolve(doc);
 				});
 			});
 		});

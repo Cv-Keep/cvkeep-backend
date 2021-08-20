@@ -1,77 +1,87 @@
 const log = require('logflake')('change-email');
+const { fnUser, fnEmail, fnActionUrl } = require('../../../functions/');
 
-const {
-	__user,
-	__email,
-	__actionUrl,
-} = require('../../../functions/');
-
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
 	const newEmail = req.body.email;
-	const currentEmail = req.$user.email;
+	const userEmail = req.$user.email;
 
-	new Promise((resolve, reject) => {
-		if (!newEmail || !currentEmail) {
-			reject('error.notEnoughDataToOperation');
-		}
+	const sendError = (error, status = 400) => {
+		log('error', status, error);
 
-		if (!__email.areValidEmails([newEmail, currentEmail])) {
-			reject('error.atLeastOneEmailIsInvalid');
-		}
-
-		__user.get(currentEmail)
-			.then(resolve)
-			.catch(reject);
-	})
-		.then(user => {
-			return new Promise(async (resolve, reject) => {
-				if (!user) {
-					reject('error.userNotFoundOnDatabase');
-				}
-
-				if (!user.password) {
-					reject('error.mustDefinePasswordToAlterEmail');
-				}
-
-				if (!await __email.checkMX(newEmail)) {
-					reject('error.atLeastOneEmailIsInvalid');
-				}
-
-				hasUser = await __user.get(newEmail).catch(reject);
-				hasRegistering = await __user.isRegistering(newEmail).catch(reject);
-				newEmailIsAvailable = !hasUser && !hasRegistering;
-
-				newEmailIsAvailable ? resolve(true) : reject('error.emailNotAvailableToUse');
-			});
-		})
-		.then(() => {
-			return new Promise(async (resolve, reject) => {
-				const actionUrl = await __actionUrl.create({
-					user: currentEmail,
-					run: 'willChangeEmail',
-					args: [currentEmail, newEmail],
-				}).catch(reject);
-
-				resolve(actionUrl);
-			});
-		})
-		.then(actionUrl => {
-			__email.send({
-				to: currentEmail,
-				template: 'change-email',
-				subject: `Trocar de E-Mail`,
-				actionUrl,
-				newEmail,
-				currentEmail,
-				locale: res.i18n.locale,
-			})
-				.catch(console.error);
-
-			return res.status(200).json({ updated: true, errors: false });
-		})
-		.catch(error => {
-			log('error', error);
-
-			res.status(400).json({ allowed: false, errors: [res.i18n.t(error)] });
+		return res.status(status).json({
+			allowed: false,
+			updated: false,
+			errors: [res.i18n.t(error)],
 		});
+	};
+
+	const validations = [
+		{
+			statusCode: 400,
+			message: 'error.notEnoughDataToOperation',
+			test: () => (newEmail && userEmail),
+		},
+		{
+			statusCode: 400,
+			message: 'error.atLeastOneEmailIsInvalid',
+			test: () => fnEmail.areValidEmails([newEmail, userEmail]),
+		},
+		{
+			statusCode: 400,
+			message: 'error.atLeastOneEmailIsInvalid',
+			test: () => fnEmail.checkMX(newEmail),
+		},
+		{
+			statusCode: 403,
+			message: 'error.emailNotAvailableToUse',
+			test: async () => !await fnUser.get(newEmail).catch(error => sendError(error, 500)),
+		},
+		{
+			statusCode: 403,
+			message: 'error.emailNotAvailableToUse',
+			test: async () => !await fnUser.isRegistering(newEmail).catch(error => sendError(error, 500)),
+		},
+	];
+
+	for (let i = 0; i < validations.length; i++) {
+		const validation = validations[i];
+
+		if (!await validation.test()) {
+			return sendError(validation.message, validation.statusCode);
+		}
+	}
+
+	const user = await fnUser.get(userEmail)
+		.catch(error => sendError(error, 500));
+
+	if (!user) {
+		return sendError('error.userNotFoundOnDatabase', 404);
+	}
+
+	if (!user.password) {
+		return sendError('error.mustDefinePasswordToAlterEmail', 403);
+	}
+
+	/** ---------------- can change the email ---------------- **/
+
+	const actionUrl = await fnActionUrl.create({
+		user: userEmail,
+		run: 'willChangeEmail',
+		args: [userEmail, newEmail],
+	}).catch(error => sendError(error, 500));
+
+	fnEmail.send({
+		to: userEmail,
+		template: 'change-email',
+		subject: `Trocar de E-Mail`,
+		actionUrl,
+		newEmail,
+		userEmail,
+		locale: res.i18n.locale,
+	}).catch(error => sendError(error, 500));
+
+	res.status(200).json({
+		updated: true,
+		errors: false,
+	});
 };

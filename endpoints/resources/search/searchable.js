@@ -1,25 +1,27 @@
 const log = require('logflake')('cv-searchable');
-const { __cv } = require('../../../functions/');
+const { fnCv } = require('../../../functions/');
 
-module.exports = (req, res) => {
-	const useremail = req.$user.email;
+module.exports = async (req, res) => {
+	const userEmail = req.$user.email;
 	const searchable = Boolean(req.body.searchable);
 
-	if (!useremail) {
-		return res.status(400).json({ updated: false, errors: ['error.notEnoughDataOrMalformedRequest'] });
+	const sendError = (error, status = 400) => {
+		log('error', status, error);
+
+		return res.status(400).json({
+			updated: false,
+			errors: [error],
+		});
+	};
+
+	if (!userEmail) {
+		return sendError('error.notEnoughDataOrMalformedRequest');
 	}
 
-	new Promise(async (resolve, reject) => {
-		const cvUpdateStatus = await __cv.update(useremail, { searchable: searchable }).catch(reject);
+	const cvUpdateStatus = await fnCv.update(userEmail, { searchable })
+		.catch(error => sendError(error, 500));
 
-		resolve({ cvUpdateStatus });
-	})
-		.then(status => {
-			res.status(200).json({ updated: true, errors: false, status: status });
-		})
-		.catch(error => {
-			log('error', error);
-
-			res.status(500).json({ updated: false, errors: [res.i18n.t(error)] });
-		});
+	cvUpdateStatus ?
+		res.status(200).json({ updated: true, errors: false }) :
+		sendError('error.internalUnexpectedError', 500);
 };
