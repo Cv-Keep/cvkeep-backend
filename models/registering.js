@@ -10,4 +10,4 @@ const RegisteringSchema = new mongoose.Schema({
 	},
 });
 
-module.exports = mongoose.model('registering', RegisteringSchema);
+module.exports = mongoose.model('registering', RegisteringSchema, 'registering');

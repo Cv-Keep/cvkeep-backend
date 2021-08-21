@@ -1,7 +1,7 @@
-const __ngrams = require('./ngrams.js');
+const fnNgrams = require('./ngrams.js');
 const Credentials = require('../models/credentials.js');
 const Curriculum = require('../models/curriculum.js');
-const CvSearchIndex = require('../models/cvSearchIndex.js');
+const CvSearchIndex = require('../models/cvsearchindex.js');
 
 module.exports = {
 	_flatObjectStrings(obj) {
@@ -24,9 +24,10 @@ module.exports = {
 			data.location.country,
 			data.location.region,
 			data.location.city,
+			data.username,
 		].join(' ').trim();
 
-		return __ngrams.generate(ngramsIndexes);
+		return fnNgrams.generate(ngramsIndexes);
 	},
 
 	_generateCvRawText(data) {
@@ -36,6 +37,7 @@ module.exports = {
 			data.location,
 			data.education,
 			data.languages,
+			data.username,
 			data.experience,
 			data.basics.role,
 			data.basics.fullname,
@@ -73,6 +75,70 @@ module.exports = {
 				CvSearchIndex.findOneAndUpdate({ cvId: data._id }, { $set: {...toInsert} }, options, (err, doc) => {
 					err ? reject(err, doc) : resolve(doc);
 				});
+			});
+		});
+	},
+
+	searchCvByNgrams(subject, page, offset) {
+		return new Promise((resolve, reject) => {
+			const searchFor = `${subject} ${fnNgrams.generate(subject).join(' ')}`;
+
+			const match = {
+				active: true,
+				searchable: true,
+				passwordProtected: false,
+
+				$text: {
+					$search: searchFor,
+					$caseSensitive: false,
+					$diacriticSensitive: false,
+				},
+			};
+
+			CvSearchIndex.aggregate([
+				{
+					$match: match,
+				},
+				{
+					$sort: {
+						score: {
+							$meta: 'textScore',
+						},
+					},
+				},
+				{
+					$lookup: {
+						as: 'cv',
+						localField: 'cvId',
+						foreignField: '_id',
+						from: Curriculum.collection.collectionName,
+					},
+				},
+				{
+					$project: {
+						'cv.username': 1,
+						'cv.color': 1,
+						'cv.basics': 1,
+						'cv.availability': 1,
+						'cv.location': 1,
+						'score': { $meta: 'textScore' },
+					},
+				},
+				{
+					$skip: (page * offset),
+				},
+				{
+					$limit: offset,
+				},
+			]).exec(async (error, docs) => {
+				if (error) {
+					return reject(error);
+				}
+
+				const total = await CvSearchIndex
+					.find(match).estimatedDocumentCount();
+
+				resolve({ result: docs, count: total });
 			});
 		});
 	},

@@ -1,66 +1,64 @@
 const log = require('logflake')('deactivate');
+const { fnUser, fnEmail, fnActionUrl } = require('../../../functions/');
 
-const {
-	__user,
-	__email,
-	__actionUrl,
-} = require('../../../functions/');
+module.exports = async (req, res) => {
+	const sendError = (error, status = 400) => {
+		log('error', status, error);
 
-module.exports = (req, res) => {
-	if (!req.$user.email) {
-		return res.status(400).json({ errors: res.i18n.t('error.invalidActionOrMalformedAction') });
+		return res.status(status).json({
+			status: 'failed',
+			errors: res.i18n.t(error),
+		});
+	};
+
+	const userEmail = req.$user.email;
+	const givenPassword = req.body.pass;
+	const encodedPass = givenPassword && fnUser.encodePassword(givenPassword);
+	const user = userEmail ? await fnUser.get(userEmail).catch(error => sendError(error, 500)) : null;
+
+	const errorFound = [
+		{
+			statusCode: 400,
+			message: 'error.invalidActionOrMalformedAction',
+			test: () => !!user,
+		},
+		{
+			statusCode: 403,
+			message: 'error.mustCreatePasswordToDoIt',
+			test: () => !!user.password,
+		},
+		{
+			statusCode: 400,
+			message: 'error.invalidPassword',
+			test: () => givenPassword || !encodedPass,
+		},
+		{
+			statusCode: 400,
+			message: 'error.invalidPassword',
+			test: () => fnUser.passwordsMatch(encodedPass, user.password),
+		},
+	].find(item => !item.test());
+
+	if (errorFound) {
+		return sendError(errorFound.message, errorFound.status);
 	}
 
-	const givenPassword = req.body.pass;
+	const actionUrl = await fnActionUrl.create({
+		user: userEmail,
+		args: [userEmail],
+		run: 'willDeactivateAccount',
+	}).catch(error => sendError(error, 500));
 
-	new Promise(async (resolve, reject) => {
-		const user = await __user.get(req.$user.email).catch(reject);
+	fnEmail.send({
+		to: userEmail,
+		actionUrl,
+		locale: res.i18n.locale,
+		subject: 'Desativar a conta',
+		template: 'deactivate-account',
+	}).catch(error => sendError(error, 500));
 
-		if (!user) {
-			return res.status(404).json({ errors: 'error.userNotFound' });
-		}
-
-		if (!user.password) {
-			return res.status(400).json({ errors: 'error.mustCreatePasswordToDoIt' });
-		}
-
-		if (user && user.password) {
-			const encodedPass = __user.encodePassword(givenPassword);
-			const canDelete = __user.passwordsMatch(encodedPass, user.password);
-
-			resolve(canDelete);
-		}
-	})
-		.then(canDelete => {
-			return new Promise(async (resolve, reject) => {
-				if (canDelete) {
-					const actionUrl = await __actionUrl.create({
-						user: req.$user.email,
-						run: 'willDeactivateAccount',
-						args: [req.$user.email],
-					}).catch(reject);
-
-					resolve(actionUrl);
-				} else {
-					return res.status(403).send(res.i18n.t('error.invalidPassword'));
-				}
-			});
-		})
-		.then(actionUrl => {
-			__email.send({
-				to: req.$user.email,
-				actionUrl,
-				locale: res.i18n.locale,
-				subject: 'Desativar a conta',
-				template: 'deactivate-account',
-			})
-				.catch(error => log('error', error));
-
-			res.status(200).json({ errors: false, status: 'done' });
-		})
-		.catch(error => {
-			log('error', error);
-
-			return res.status(500).json({ errors: res.i18n.t(error) });
-		});
+	res.status(200).json({
+		errors: false,
+		status: 'done',
+	});
 };

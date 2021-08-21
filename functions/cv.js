@@ -1,4 +1,4 @@
-const __cvNgrams = require('./cvNgrams.js');
+const fnCvNgrams = require('./cvNgrams.js');
 const log = require('logflake')('cv');
 const Curriculum = require('../models/curriculum.js');
 
@@ -44,16 +44,12 @@ module.exports = {
 			delete data._id;
 
 			Curriculum.findOneAndUpdate({ email: email }, { $set: { ...data } }, options, (error, status) => {
-				__cvNgrams.updateCvSearchIndex(email)
+				fnCvNgrams.updateCvSearchIndex(email)
 					.catch(error => log('error', error));
 
 				!error ? resolve(status) : reject(error);
 			});
 		});
-	},
-
-	updateOrCreate(email, data, options = { upsert: true}) {
-		return this.findOneAndUpdate(email, data, options);
 	},
 
 	lock(cv, photo) {

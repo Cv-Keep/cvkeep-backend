@@ -1,15 +1,15 @@
 const md5 = require('md5');
 const config = require('../config');
 const log = require('logflake')('user');
-const __cv = require('./cv.js');
-const __utils = require('./utils.js');
-const __email = require('./email.js');
-const __userFiles = require('./userFiles.js');
+const fnCv = require('./cv.js');
+const fnUtils = require('./utils.js');
+const fnEmail = require('./email.js');
+const fnUserFiles = require('./userFiles.js');
 
 const Credentials = require('../models/credentials.js');
 const Registering = require('../models/registering.js');
 const Curriculum = require('../models/curriculum.js');
-const ForgotPass = require('../models/forgotPass.js');
+const ForgotPass = require('../models/forgotpass.js');
 
 module.exports = {
 	get(query, options = {}) {
@@ -48,7 +48,7 @@ module.exports = {
 				reject(`Error while creating user, ${item} is undefined`);
 			}
 
-			data.username = __utils.slugify(data.username);
+			data.username = fnUtils.slugify(data.username);
 
 			const findUserQuery = {
 				$or: [
@@ -96,10 +96,6 @@ module.exports = {
 				!error ? resolve(status) : reject(error);
 			});
 		});
-	},
-
-	updateOrCreate(email, data, options = { upsert: true}) {
-		return this.update(email, data, options);
 	},
 
 	reactivate(email) {
@@ -185,15 +181,16 @@ module.exports = {
 			if (!alreadyExists) {
 				const setNewEmail = { $set: { email: newEmail } };
 
-				try {
-					await Curriculum.findOneAndUpdate({ email: currentEmail }, setNewEmail);
-					await ForgotPass.findOneAndUpdate({ email: currentEmail }, setNewEmail);
-					await Credentials.findOneAndUpdate({ email: currentEmail }, setNewEmail);
+				await Curriculum.findOneAndUpdate({ email: currentEmail }, setNewEmail)
+					.catch(reject);
 
-					resolve(true);
-				} catch (error) {
-					reject(error);
-				}
+				await ForgotPass.findOneAndUpdate({ email: currentEmail }, setNewEmail)
+					.catch(reject);
+
+				await Credentials.findOneAndUpdate({ email: currentEmail }, setNewEmail)
+					.catch(reject);
+
+				resolve(true);
 			} else {
 				reject('error.emailNotAvailableForUse');
 			}
@@ -206,13 +203,13 @@ module.exports = {
 	},
 
 	changeUsername(currentUserEmail, newUsername) {
-		newUsername = __utils.slugify(newUsername);
+		newUsername = fnUtils.slugify(newUsername);
 
 		return new Promise(async (resolve, reject) => {
 			const alreadyExists = await this.get({ username: newUsername });
 
 			if (!alreadyExists) {
-				const cvChangeStatus = await __cv.update(currentUserEmail, { username: newUsername })
+				const cvChangeStatus = await fnCv.update(currentUserEmail, { username: newUsername })
 					.catch(reject);
 
 				const userChangeStatus = await this.update(currentUserEmail, { username: newUsername })
@@ -234,7 +231,7 @@ module.exports = {
 
 			ForgotPass.findOneAndUpdate(query, { $set: set }, { upsert: true }, error => {
 				if (!error) {
-					__email.send({
+					fnEmail.send({
 						to: email,
 						subject: 'Nova Senha',
 						template: 'forgotpass',
@@ -252,7 +249,7 @@ module.exports = {
 
 	removeForgotPass(hash) {
 		return new Promise((resolve, reject) => {
-			return ForgotPass.deleteOne({ hash: hash }, (error, data) => {
+			return ForgotPass.deleteOne({ hash }, (error, data) => {
 				(error || !data) ? reject(error || 'error.internalUnexpectedError') : resolve(data);
 			});
 		});
@@ -260,19 +257,19 @@ module.exports = {
 
 	validateForgottenPassHash(hash) {
 		return new Promise((resolve, reject) => {
-			ForgotPass.findOne({ hash: hash}, (error, data) => {
-				(error || !data) ? reject(error || 'error.invalidToken') : resolve(data);
-			});
-		}).then(data => {
-			return new Promise(resolve => {
-				const hashAgeInDays = (new Date().getTime() - new Date(data.created).getTime()) / (1000 * 3600 * 24);
-
-				if (hashAgeInDays <= 2) {
-					resolve(true);
-				} else {
-					ForgotPass.deleteOne({ hash: hash });
-					resolve(false);
+			ForgotPass.findOne({ hash: hash}, async (error, data) => {
+				if (error || !data) {
+					return reject(error || 'error.invalidToken');
 				}
+
+				const hashAgeInDays = (new Date().getTime() - new Date(data.created).getTime()) / (1000 * 3600 * 24);
+				const isHashAllowed = hashAgeInDays <= 2;
+
+				if (!isHashAllowed) {
+					await this.removeForgotPass(hash);
+				}
+
+				resolve(isHashAllowed);
 			});
 		});
 	},
@@ -287,13 +284,13 @@ module.exports = {
 			let resource = null;
 
 			if (uploadingFile) {
-				resource = await __userFiles.uploadAvatar(user._id, file).catch(reject);
+				resource = await fnUserFiles.uploadAvatar(user._id, file).catch(reject);
 			} else {
 				resource = file;
 			}
 
 			await this.update(userEmail, { photo: resource }).catch(reject);
-			await __cv.update(userEmail, {basics: { photo: resource }}).catch(reject);
+			await fnCv.update(userEmail, {basics: { photo: resource }}).catch(reject);
 
 			resolve(resource);
 		});

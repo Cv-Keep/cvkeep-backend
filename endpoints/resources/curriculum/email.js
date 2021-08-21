@@ -1,9 +1,15 @@
 const log = require('logflake')('cv-mail');
 const { fnUser, fnEmail } = require('../../../functions/');
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
 	const clientData = req.body;
 	const to = clientData.to;
+
+	const sendError = (error, status = 400) => {
+		log('error', status, error);
+
+		return res.status(status).send(res.i18n.t(error));
+	};
 
 	/**
    * this is a honeypot check, the original input names
@@ -13,49 +19,56 @@ module.exports = (req, res) => {
    */
 	['name', 'email', 'subject', 'message'].forEach(item => {
 		if (clientData[item]) {
-			return res.status(200).send({});
+			return res.status(200).send(true);
 		}
 	});
 
 	// ---------------------------------------------------
+	const user = to && await fnUser.get({ username: to })
+		.catch(error => sendError(error, 500));
 
-	new Promise(async (resolve, reject) => {
-		if (!to) {
-			reject('error.noEmailDestiny');
+	const validations = [
+		{
+			statusCode: 400,
+			message: 'error.noEmailDestiny',
+			test: () => !!user,
+		},
+		{
+			statusCode: 400,
+			message: 'error.notEnoughDataToOperation',
+			test: () => clientData['n_001'] && clientData['e_001'] && clientData['s_001'] && clientData['m_001'],
+		},
+		{
+			statusCode: 403,
+			message: 'user.privacy.allowPublicMessages',
+			test: () => user.privacy.allowPublicMessages,
+		},
+		{
+			statusCode: 403,
+			message: 'error.atLeastOneEmailIsInvalid',
+			test: async () => await fnEmail.checkMX(clientData['e_001']),
+		},
+	];
+
+	for (let i = 0; i < validations.length; i++) {
+		const validation = validations[i];
+
+		if (!await validation.test()) {
+			return sendError(validation.message, validation.statusCode);
 		}
+	}
 
-		if (!clientData['n_001'] || !clientData['e_001'] || !clientData['s_001'] || !clientData['m_001']) {
-			reject('error.notEnoughDataToOperation');
-		}
-
-		if (!await fnEmail.checkMX(clientData['e_001'])) {
-			reject('error.atLeastOneEmailIsInvalid');
-		}
-
-		const user = await fnUser.get({ username: to }).catch(reject);
-		user ? resolve(user) : reject(res.i18n.t('error.noEmailDestiny'));
+	fnEmail.send({
+		...clientData,
+		to: user.email,
+		template: 'cv-contact',
+		locale: res.i18n.locale,
+		subject: res.i18n.t('newContact'),
 	})
-		.then(user => {
-			if (user.privacy.allowPublicMessages) {
-				fnEmail.send({
-					...clientData,
-					to: user.email,
-					subject: `Novo Contato!`,
-					template: 'cv-contact',
-					locale: res.i18n.locale,
-				})
-					.catch(error => {
-						log('error', error);
-
-						res.status(500).send(res.i18n.t(error)).end();
-					});
-			} else {
-				res.status(403).send(res.i18n.t('error.actionProtectedByPrivacyConfig')).end();
-			}
-		})
+		.then(() => res.status(200).send(true))
 		.catch(error => {
 			log('error', error);
 
-			res.status(400).send(res.i18n.t(error)).end();
+			res.status(500).send(res.i18n.t(error)).end();
 		});
 };

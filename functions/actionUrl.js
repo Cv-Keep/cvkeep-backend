@@ -37,7 +37,7 @@ module.exports = {
 				pendingUrlActions[method] = {
 					method,
 					userEmail: userEmail,
-					arguments: typeof args != 'object' ? [args] : args,
+					arguments: typeof args !== 'object' ? [args] : args,
 				};
 
 				await fnUser.update(userEmail, { pendingUrlActions }, { upsert: true }).catch(reject);

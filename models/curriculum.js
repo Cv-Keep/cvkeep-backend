@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const CurriculumSchema = new mongoose.Schema({
-	lang: { type: String, default: 'en' },
+	lang: { type: String, default: '' },
 	views: { type: Number, default: 0 },
 	email: { type: String, required: true },
 	username: { type: String, required: true },
@@ -71,4 +71,4 @@ const CurriculumSchema = new mongoose.Schema({
 	},
 });
 
-module.exports = mongoose.model('curriculum', CurriculumSchema);
+module.exports = mongoose.model('curriculum', CurriculumSchema, 'curriculum');

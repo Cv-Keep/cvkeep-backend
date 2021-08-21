@@ -8,7 +8,9 @@ module.exports = async (req, res) => {
 	const sendError = (error, status = 400) => {
 		log('error', status, error);
 
-		return fnUtils.errorPage(res, res.i18n.t(error));
+		return status === 404 ?
+			res.status(404).send('404') :
+			fnUtils.errorPage(res, res.i18n.t(error));
 	};
 
 	if (!queryUserName) {

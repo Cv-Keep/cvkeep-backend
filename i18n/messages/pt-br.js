@@ -3,6 +3,7 @@ module.exports = {
 	yourName: 'Seu nome',
 	changePassword: 'Trocar a senha',
 	createPassword: 'Criar uma senha',
+	newContact: 'Novo contato',
 
 	success: {
 		usernameAvailable: 'Este nome de usuário está disponível',

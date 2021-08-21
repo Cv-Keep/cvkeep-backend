@@ -1,7 +1,7 @@
-const config = require('./../config');
 const fs = require('fs');
 const rimraf = require('rimraf');
-const _slugify = require('slugify');
+const slugifier = require('slugify');
+const config = require('./../config');
 
 module.exports = {
 	errorPage(res, message) {
@@ -20,7 +20,7 @@ module.exports = {
 	slugify(str) {
 		str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-		str = _slugify(str, {
+		str = slugifier(str, {
 			replacement: '-',
 			remove: /[*#{}?\\//[\];/,^$%+~.()'"!:@]/g,
 			lower: true,

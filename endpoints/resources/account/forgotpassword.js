@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
 		return sendResOk();
 	}
 
-	// IF SENDING ONLY THE HASH TO VALIDATE
+	// IF RECEIVED ONLY THE HASH TO VALIDATE
 
 	if (task === 'validate' && hash) {
 		const isValidHash = await fnUser.validateForgottenPassHash(hash)

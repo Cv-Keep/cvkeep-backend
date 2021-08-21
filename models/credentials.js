@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const CredentialsSchema = new mongoose.Schema({
-	lang: { type: String, default: 'en' },
+	lang: { type: String, default: '' },
 	photo: { type: String },
 	email: { type: String, required: true },
 	username: { type: String, required: true },

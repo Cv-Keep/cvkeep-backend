@@ -1,6 +1,6 @@
 const config = require('../config');
 const usersPublicFolder = `../public/files/users`;
-const __utils = require('./utils.js');
+const fnUtils = require('./utils.js');
 
 module.exports = {
 	saveOnUsersPublicFolder(userId, file, subfolder) {
@@ -16,17 +16,17 @@ module.exports = {
 
 	uploadAvatar(userMongoId, file) {
 		return new Promise(async (resolve, reject) => {
-			if (__utils.bytesToMB(file.size) > config.uploadMaxFileSizeMB) {
+			if (fnUtils.bytesToMB(file.size) > config.uploadMaxFileSizeMB) {
 				return reject('error.maxUploadFileSizeExceeded');
 			}
 
 			file.name = `avatar.${file.name.split('.')[1] || ''}`;
 
-			__utils.rmdir(`${usersPublicFolder}/${userMongoId}/avatar/`);
+			fnUtils.rmdir(`${usersPublicFolder}/${userMongoId}/avatar/`);
 
 			this.saveOnUsersPublicFolder(userMongoId, file, '/avatar/')
 				.then(result => {
-					const resultURL = __utils.urlTo(result);
+					const resultURL = fnUtils.urlTo(result);
 
 					resolve(resultURL);
 				})

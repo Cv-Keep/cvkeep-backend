@@ -6,4 +6,4 @@ const ForgotPassSchema = new mongoose.Schema({
 	created: { type: Date },
 });
 
-module.exports = mongoose.model('forgotPass', ForgotPassSchema);
+module.exports = mongoose.model('forgotpass', ForgotPassSchema, 'forgotpass');

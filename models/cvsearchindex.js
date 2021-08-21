@@ -13,8 +13,8 @@ const CvSearchIndexSchema = new mongoose.Schema({
 
 CvSearchIndexSchema.index(
 	{
-		'ngrams': 'text',
-		'rawtext': 'text',
+		ngrams: 'text',
+		rawtext: 'text',
 	},
 	{
 		weights: {
@@ -25,4 +25,4 @@ CvSearchIndexSchema.index(
 	},
 );
 
-module.exports = mongoose.model('cvSearchIndex', CvSearchIndexSchema);
+module.exports = mongoose.model('cvsearchindex', CvSearchIndexSchema, 'cvsearchindex');
