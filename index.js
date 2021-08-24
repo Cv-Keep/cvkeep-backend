@@ -10,9 +10,10 @@ const i18n = require('./i18n');
 const cors = require('./cors.js');
 const log = require('logflake')('app');
 
-/** database */
+/** database & crons */
 
 require('./database/');
+require('./cronjobs');
 
 /** app && /status **/
 

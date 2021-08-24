@@ -60,4 +60,12 @@ module.exports = {
 	arrayUnique(array) {
 		return array.filter((x, i) => i === array.indexOf(x));
 	},
+
+	daysSince(date) {
+		if (!date instanceof Date) {
+			date = new Date(date);
+		}
+
+		return (new Date().getTime() - date.getTime()) / (1000 * 3600 * 24);
+	},
 };

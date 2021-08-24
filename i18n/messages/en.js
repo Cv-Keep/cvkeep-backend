@@ -62,7 +62,6 @@ module.exports = {
 		facebookStatusErrorReturned: 'Facebook returned Status Error',
 		invalidLoginAttempt: 'Invalid login attempt',
 		noGithubAccessCode: 'GitHub did not return an access code',
-		linkedInUnauthorizedLogin: 'Unauthorized LinkedIn Login',
 		looksLikeYouAreLost: 'Oops, looks like you\'re lost?',
 		youMustSignOut: 'You must log out before performing this action',
 		invalidHashOrNoAssociatedUser: 'Invalid hash or no associated user',

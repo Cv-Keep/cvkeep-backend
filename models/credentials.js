@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const CredentialsSchema = new mongoose.Schema({
 	lang: { type: String, default: '' },
-	photo: { type: String },
+	photo: { type: String, select: false },
 	email: { type: String, required: true },
 	username: { type: String, required: true },
 	password: { type: String },
@@ -11,6 +11,8 @@ const CredentialsSchema = new mongoose.Schema({
 	active: { type: Boolean },
 	hasPassword: { type: Boolean },
 	pendingUrlActions: { type: Object },
+	deactivated_at: { type: Date },
+	created_at: { type: Date, default: new Date() },
 	privacy: {
 		allowPublicMessages: { type: Boolean },
 		cvPasswordProtected: {

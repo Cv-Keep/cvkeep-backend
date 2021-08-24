@@ -33,10 +33,5 @@ module.exports = {
 			client_id: env.SOCIAL_AUTH_GITHUB_CLIENT_ID,
 			client_secret: env.SOCIAL_AUTH_GITHUB_CLIENT_SECRET,
 		},
-
-		linkedin: {
-			client_id: env.SOCIAL_AUTH_LINKEDIN_CLIENT_ID,
-			client_secret: env.SOCIAL_AUTH_LINKEDIN_CLIENT_SECRET,
-		},
 	},
 };

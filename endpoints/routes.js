@@ -28,9 +28,8 @@ route('post', '/auth/signin', 'auth/signin.js');
 route('all', '/auth/signout', 'auth/signout.js');
 route('post', '/auth/register', 'auth/register.js');
 route('post', '/auth/confirm', 'auth/confirm.js');
-route('all', '/auth/facebook', 'auth/socials/facebook.js');
-route('all', '/auth/linkedin', 'auth/socials/linkedin.js');
-route('all', '/auth/github', 'auth/socials/github.js');
+route('all', '/auth/facebook', 'auth/socials/facebook/facebook.js');
+route('all', '/auth/github', 'auth/socials/github/github.js');
 
 // account
 

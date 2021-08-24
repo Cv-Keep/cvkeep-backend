@@ -13,12 +13,29 @@ const ForgotPass = require('../models/forgotpass.js');
 
 module.exports = {
 	get(query, options = {}) {
-		if (typeof query === 'string') {
-			query = { email: query };
-		}
-
 		return new Promise(async (resolve, reject) => {
-			Credentials.findOne(query, (error, credentials) => {
+			const select = {};
+
+			if (!query) {
+				return reject(query);
+			}
+
+			if (typeof query === 'string') {
+				query = { email: query };
+			}
+
+			if (options.sanitize) {
+				[
+					'password',
+					'hasPassword',
+					'confirm_password',
+					'pendingUrlActions',
+				].forEach(item => {
+					select[item] = 0;
+				});
+			}
+
+			Credentials.findOne(query, select, (error, credentials) => {
 				if (error) {
 					reject(error);
 					return false;
@@ -30,13 +47,6 @@ module.exports = {
 				}
 
 				credentials.hasPassword = !!credentials.password;
-
-				if (options.sanitize) {
-					delete credentials.password;
-					delete credentials.confirm_password;
-					delete credentials.pendingUrlActions;
-				}
-
 				resolve(credentials);
 			});
 		});
@@ -102,8 +112,8 @@ module.exports = {
 		return new Promise((resolve, reject) => {
 			const query = { 'email': email };
 
-			Credentials.findOneAndUpdate(query, { $set: { active: true } }, { upsert: false }, (error, status) => {
-				error ? reject(error) : resolve(status.modified);
+			Credentials.findOneAndUpdate(query, { $set: { active: true } }, { upsert: false }, (error, credentials) => {
+				error ? reject(error) : resolve(credentials);
 			});
 		});
 	},
@@ -262,7 +272,7 @@ module.exports = {
 					return reject(error || 'error.invalidToken');
 				}
 
-				const hashAgeInDays = (new Date().getTime() - new Date(data.created).getTime()) / (1000 * 3600 * 24);
+				const hashAgeInDays = fnUtils.daysSince(data.created);
 				const isHashAllowed = hashAgeInDays <= 2;
 
 				if (!isHashAllowed) {
@@ -302,7 +312,7 @@ module.exports = {
 		return new Promise(async (resolve, reject) => {
 			await this.changeUsername(userEmail, userhash);
 
-			this.update(userEmail, { active: false })
+			this.update(userEmail, { active: false, deativated_at: new Date() })
 				.then(resolve)
 				.catch(reject);
 		});
