@@ -26,6 +26,7 @@ const CurriculumSchema = new mongoose.Schema({
 	basics: {
 		fullname: { type: String, default: '' },
 		role: { type: String, default: '' },
+		photo: { type: String, default: '' },
 	},
 	location: {
 		country: { type: String, default: 'Brasil'},

@@ -20,22 +20,17 @@ module.exports = (email) => {
 		if (!user || !user.email) {
 			const userName = md5(`${Date.now()}.${email}.${Math.random().toString(32)}`);
 
+			const createdCv = await fnCv.create({
+				email,
+				username: userName,
+			}).catch(reject);
+
 			user = await fnUser.create({
 				email,
 				active: true,
 				username: userName,
-				fullname: ghUser.name,
+				cvId: createdCv._id,
 			}).catch(reject);
-
-			const createdCv = await fnCv.create({
-				email,
-				username: userName,
-				basics: { fullname: ghUser.name },
-			}).catch(reject);
-
-			if (!createdCv.basics.photo) {
-				createdCv.basics.photo = ghUser.body.avatar_url;
-			}
 
 			if (!user && !createdCv) {
 				return reject('error.internalUnexpectedError');

@@ -66,13 +66,12 @@ module.exports = async (req, res) => {
 			const createdCv = await fnCv.create({
 				username: credentials.username,
 				email: newUser.registering.email,
-				basics: { fullname: res.i18n.t('yourName') },
 			})
 				.catch(sendError);
 
 			const createdUser = await fnUser.create({
 				active: true,
-				fullname: res.i18n.t('yourName'),
+				cvId: createCv._id,
 				username: credentials.username,
 				email: newUser.registering.email,
 				password: fnUser.encodePassword(credentials.password),

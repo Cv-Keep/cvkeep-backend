@@ -1,6 +1,8 @@
 const fnCvNgrams = require('./cvNgrams.js');
 const log = require('logflake')('cv');
+
 const Curriculum = require('../models/curriculum.js');
+const Credentials = require('../models/credentials.js');
 
 module.exports = {
 	get(query) {
@@ -43,8 +45,11 @@ module.exports = {
 		return new Promise((resolve, reject) => {
 			delete data._id;
 
-			Curriculum.findOneAndUpdate({ email: email }, { $set: { ...data } }, options, (error, status) => {
+			Curriculum.findOneAndUpdate({ email }, { $set: { ...data } }, options, (error, status) => {
 				fnCvNgrams.updateCvSearchIndex(email)
+					.catch(error => log('error', error));
+
+				Credentials.updateOne({ email }, { $set: { fullname: data.basics.fullname, photo: data.basics.photo } })
 					.catch(error => log('error', error));
 
 				!error ? resolve(status) : reject(error);

@@ -291,13 +291,8 @@ module.exports = {
 			const user = await this.get(userEmail).catch(reject);
 			const uploadingFile = typeof file !== 'string';
 
-			let resource = null;
-
-			if (uploadingFile) {
-				resource = await fnUserFiles.uploadAvatar(user._id, file).catch(reject);
-			} else {
-				resource = file;
-			}
+			const resource = uploadingFile ?
+				await fnUserFiles.uploadAvatar(user._id, file).catch(reject) : file;
 
 			await this.update(userEmail, { photo: resource }).catch(reject);
 			await fnCv.update(userEmail, {basics: { photo: resource }}).catch(reject);
