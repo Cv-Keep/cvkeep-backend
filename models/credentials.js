@@ -15,7 +15,7 @@ const CredentialsSchema = new mongoose.Schema({
 	cvId: { type: mongoose.Types.ObjectId },
 	created_at: { type: Date, default: new Date() },
 	privacy: {
-		allowPublicMessages: { type: Boolean },
+		allowPublicMessages: { type: Boolean, default: true },
 		cvPasswordProtected: {
 			enabled: { type: Boolean, default: false },
 			passwords: { type: Array },

@@ -301,6 +301,15 @@ module.exports = {
 		});
 	},
 
+	removeAvatar(userEmail) {
+		return new Promise(async (resolve, reject) => {
+			await this.update(userEmail, {photo: ''}).catch(reject);
+			await fnCv.update(userEmail, {basics: { photo: '' }}).catch(reject);
+
+			resolve(true);
+		});
+	},
+
 	deactivateAccount(userEmail) {
 		const userhash = md5(`${Date.now()}.${userEmail}.${Math.random().toString(32)}`);
 

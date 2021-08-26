@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
 		},
 		{
 			statusCode: 403,
-			message: 'user.privacy.allowPublicMessages',
+			message: 'user.youHaveNoPermission',
 			test: () => user.privacy.allowPublicMessages,
 		},
 		{
