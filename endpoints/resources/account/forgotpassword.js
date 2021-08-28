@@ -3,9 +3,9 @@ const { fnUser } = require('../../../functions/');
 
 module.exports = async (req, res) => {
 	const task = req.body.task;
-	const email = req.body.email;
 	const hash = req.body.hash;
 	const pass = req.body.password;
+	const email = req.body.email;
 
 	const sendError = (error, status = 400) => {
 		log('error', status, error);
@@ -21,17 +21,6 @@ module.exports = async (req, res) => {
 		errors: false,
 	});
 
-	if (!email && !hash && !pass) {
-		return sendError('error.noDataToProcess');
-	}
-
-	const user = await fnUser.get(email)
-		.catch(error => sendError(error, 500));
-
-	if (!user) {
-		sendError('error.userNotFound');
-	}
-
 	// IF CREATING A NEW FORGOTTEN PASS EMAIL REQUEST
 
 	if (task === 'create' && email) {
@@ -43,9 +32,9 @@ module.exports = async (req, res) => {
 
 	// IF RECEIVED ONLY THE HASH TO VALIDATE
 
-	if (task === 'validate' && hash) {
-		const isValidHash = await fnUser.validateForgottenPassHash(hash)
-			.catch(error => sendError(error, 500));
+	if (task === 'validate') {
+		const forgotPassData = await fnUser.getForgotPassCompleteData(hash);
+		const isValidHash = forgotPassData.isValidHash;
 
 		return isValidHash ?
 			sendResOk() :
@@ -55,11 +44,20 @@ module.exports = async (req, res) => {
 	// IF RESETING THE PASS BASED ON EXISTENT HASH
 
 	if (task === 'reset' && hash && pass) {
-		const isValidHash = await fnUser.validateForgottenPassHash(hash)
-			.catch(error => sendError(error, 500));
+		const forgotPassData = await fnUser.getForgotPassCompleteData(hash);
+		const isValidHash = forgotPassData.isValidHash;
+		const user = forgotPassData.user;
+
+		if (!forgotPassData.forgotPassObj && !hash && !pass) {
+			return sendError('error.noDataToProcess');
+		}
 
 		if (!isValidHash) {
 			return sendError('error.invalidToken', 403);
+		}
+
+		if (user.email && !user) {
+			return sendError('error.userNotFound');
 		}
 
 		await fnUser.changePassword(user.email, pass)

@@ -236,7 +236,7 @@ module.exports = {
 		const hash = md5(`${config.secret}|${new Date()}|${email}`);
 
 		return new Promise((resolve, reject) => {
-			const query = { 'email': email };
+			const query = { email };
 			const set = { hash: hash, created: new Date() };
 
 			ForgotPass.findOneAndUpdate(query, { $set: set }, { upsert: true }, error => {
@@ -265,22 +265,43 @@ module.exports = {
 		});
 	},
 
-	validateForgottenPassHash(hash) {
+	getForgotPassObject(hash) {
 		return new Promise((resolve, reject) => {
-			ForgotPass.findOne({ hash: hash}, async (error, data) => {
+			ForgotPass.findOne({ hash}, async (error, data) => {
 				if (error || !data) {
 					return reject(error || 'error.invalidToken');
 				}
 
-				const hashAgeInDays = fnUtils.daysSince(data.created);
-				const isHashAllowed = hashAgeInDays <= 2;
-
-				if (!isHashAllowed) {
-					await this.removeForgotPass(hash);
-				}
-
-				resolve(isHashAllowed);
+				resolve(data);
 			});
+		});
+	},
+
+	validateForgottenPassHash(forgotPassObject) {
+		if (!forgotPassObject) return false;
+
+		const hashAgeInDays = fnUtils.daysSince(forgotPassObject.created);
+		const isHashAllowed = hashAgeInDays <= 2;
+
+		if (!isHashAllowed) {
+			this.removeForgotPass(hash)
+				.catch(error => log('error', error));
+		}
+
+		return isHashAllowed;
+	},
+
+	getForgotPassCompleteData(hash) {
+		return new Promise(async (resolve, reject) => {
+			const forgotPassObj = await this.getForgotPassObject(hash).catch(error => log('error', error));
+			const isValidHash = forgotPassObj && this.validateForgottenPassHash(forgotPassObj);
+			const user = forgotPassObj && await this.get(forgotPassObj.email).catch(error => log('error', error));
+
+			if (!forgotPassObj || !isValidHash || !user) {
+				return reject(false);
+			}
+
+			resolve({ user, isValidHash, forgotPassObj });
 		});
 	},
 
