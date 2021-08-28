@@ -33,7 +33,7 @@ module.exports = {
 		nonExistentUserOrFile: 'User or file does not exist',
 		youHaveNoPermission: 'You are not allowed to perform this action',
 		maxUploadFileSizeExceeded: 'This file exceeds the maximum upload size',
-		emailAlreadyTaken: 'A user already registered with this e-mail',
+		emailAlreadyTaken: 'There is a user already registered with this e-mail',
 		usernameAlreadyTaken: 'This user name is already being used',
 		emailNotAvailableToUse: 'This e-mail is not available for registration',
 		emailNotAvailableForUse: 'This e-mail is currently unavailable',
