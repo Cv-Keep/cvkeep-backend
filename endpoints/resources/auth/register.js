@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
 	fnUser.isRegistering(email)
 		.then(async ongoing => {
 			const allDone = (data) => {
-				const message = ongoing ?
+				const message = !ongoing ?
 					'success.registrationEmailSent' : 'error.alreadyRegistering';
 
 				fnEmail.send({

@@ -34,6 +34,12 @@ module.exports = async (req, res) => {
 				},
 				{
 					statusCode: 403,
+					message: 'error.userAlreadyOnDatabase',
+					test: async () => credentials && credentials.username ?
+						!await fnUser.get({ username: credentials.username }) : true,
+				},
+				{
+					statusCode: 403,
 					message: 'error.badwordsOnUsername',
 					test: async () => !fnBadwords.isProfane(newUser),
 				},
