@@ -45,14 +45,16 @@ module.exports = {
 		return new Promise((resolve, reject) => {
 			delete data._id;
 
-			Curriculum.findOneAndUpdate({ email }, { $set: { ...data } }, options, (error, status) => {
+			Curriculum.findOneAndUpdate({ email }, { $set: { ...data } }, options, (error, cv) => {
 				fnCvNgrams.updateCvSearchIndex(email)
 					.catch(error => log('error', error));
 
-				Credentials.updateOne({ email }, { $set: { fullname: data.basics.fullname, photo: data.basics.photo } })
-					.catch(error => log('error', error));
+				if (data.basics && (data.basics.fullname || data.basics.photo)) {
+					Credentials.updateOne({ email }, { $set: { fullname: cv.basics.fullname, photo: cv.basics.photo } })
+						.catch(error => log('error', error));
+				}
 
-				!error ? resolve(status) : reject(error);
+				!error ? resolve(cv) : reject(error);
 			});
 		});
 	},
