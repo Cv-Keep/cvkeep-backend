@@ -8,6 +8,5 @@ module.exports = {
 	fnBadwords: require('./badwords'),
 	fnCvNgrams: require('./cvNgrams.js'),
 	fnActionUrl: require('./actionUrl.js'),
-	fnUserFiles: require('./userFiles.js'),
 	fnEncryption: require('./encryption.js'),
 };

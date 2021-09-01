@@ -47,12 +47,6 @@ module.exports = {
 		}
 	},
 
-	urlTo(publicPath) {
-		publicPath = publicPath.split('public/').slice(1).join('public/');
-
-		return `${config.serverURL}/public/${publicPath}`;
-	},
-
 	bytesToMB(b) {
 		return (b > 0) ? (b / 1024 / 1024).toFixed(2) : 0;
 	},

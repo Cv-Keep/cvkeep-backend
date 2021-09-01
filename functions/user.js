@@ -4,7 +4,6 @@ const log = require('logflake')('user');
 const fnCv = require('./cv.js');
 const fnUtils = require('./utils.js');
 const fnEmail = require('./email.js');
-const fnUserFiles = require('./userFiles.js');
 
 const Credentials = require('../models/credentials.js');
 const Registering = require('../models/registering.js');
@@ -41,12 +40,10 @@ module.exports = {
 					return false;
 				}
 
-				if (!credentials) {
-					resolve(null);
-					return false;
+				if (credentials) {
+					credentials.hasPassword = !!credentials.password;
 				}
 
-				credentials.hasPassword = !!credentials.password;
 				resolve(credentials);
 			});
 		});
@@ -307,25 +304,46 @@ module.exports = {
 
 	setAvatar(userEmail, file) {
 		return new Promise(async (resolve, reject) => {
-			if (!userEmail || !file) reject('error.nonExistentUserOfFile');
+			if (!userEmail || !file) {
+				return reject('error.nonExistentUserOfFile');
+			}
 
-			const user = await this.get(userEmail).catch(reject);
-			const uploadingFile = typeof file !== 'string';
+			const user = await Credentials.findOne({ email: userEmail })
+				.select('photo')
+				.catch(reject);
 
-			const resource = uploadingFile ?
-				await fnUserFiles.uploadAvatar(user._id, file).catch(reject) : file;
+			if (!user || !file.data || !file.mimetype) {
+				return reject('error.internalUnexpectedError');
+			}
 
-			await this.update(userEmail, { photo: resource }).catch(reject);
-			await fnCv.update(userEmail, {basics: { photo: resource }}).catch(reject);
+			user.photo = {
+				data: file.data,
+				contentType: file.mimetype,
+			};
 
-			resolve(resource);
+			await user.save();
+			resolve(true);
+		});
+	},
+
+	getAvatar(username) {
+		return new Promise(async (resolve, reject) => {
+			const user = await Credentials.findOne({ username })
+				.select('photo')
+				.catch(reject);
+
+			if (!user) {
+				return reject('error.internalUnexpectedError');
+			}
+
+			resolve(user.photo);
 		});
 	},
 
 	removeAvatar(userEmail) {
 		return new Promise(async (resolve, reject) => {
-			await this.update(userEmail, {photo: ''}).catch(reject);
-			await fnCv.update(userEmail, {basics: { photo: '' }}).catch(reject);
+			await this.update(userEmail, { photo: null })
+				.catch(reject);
 
 			resolve(true);
 		});

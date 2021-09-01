@@ -45,8 +45,9 @@ route('logged', '/account/changepassword', 'account/changepassword.js');
 route('logged', '/account/changeprivacy', 'account/changeprivacy.js');
 route('logged', '/account/deactivate', 'account/deactivateaccount.js');
 route('logged', '/account/changelanguage', 'account/changelanguage.js');
-route('logged', '/account/removeavatar', 'account/removeavatar.js');
-route('logged', '/upload/setuseravatar', 'upload/setuseravatar.js');
+route('logged', '/avatar/removeavatar', 'avatar/removeavatar.js');
+route('logged', '/avatar/setuseravatar', 'avatar/setuseravatar.js');
+route('all', '/avatar/getuseravatar/:username', 'avatar/getuseravatar.js');
 
 // curriculum
 

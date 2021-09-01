@@ -25,7 +25,6 @@ cors.guard(app);
 app.use(helmet());
 app.use(bearerToken());
 app.use(i18n.middleware);
-app.use('/public', express.static(`${__dirname}/public`));
 app.use(gzip());
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
