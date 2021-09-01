@@ -17,7 +17,6 @@ module.exports = {
 			}
 
 			try {
-				delete credentials.photo;
 				const token = jwt.sign(credentials);
 
 				res.cookie(config.jwtCookieName, token, {

@@ -49,8 +49,8 @@ module.exports = {
 				fnCvNgrams.updateCvSearchIndex(email)
 					.catch(error => log('error', error));
 
-				if (data.basics && (data.basics.fullname || data.basics.photo)) {
-					Credentials.updateOne({ email }, { $set: { fullname: cv.basics.fullname, photo: cv.basics.photo } })
+				if (data.basics && data.basics.fullname) {
+					Credentials.updateOne({ email }, { $set: { fullname: cv.basics.fullname } })
 						.catch(error => log('error', error));
 				}
 
@@ -61,16 +61,12 @@ module.exports = {
 
 	lock(cv, photo) {
 		username = typeof cv === 'string' ? cv : cv.username;
-		photo = photo ? photo : cv.basics.photo;
 
 		return {
 			locked: true,
 			passwordProtected: true,
 			username: username,
 			background: cv.background,
-			basics: {
-				photo: photo,
-			},
 		};
 	},
 

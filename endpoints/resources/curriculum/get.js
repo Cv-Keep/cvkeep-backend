@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
 	const user = await fnUser.getActiveUser({ username: queryUserName }, { sanitize: true })
 		.catch(error => sendError(error, 500));
 
-	const cv = await fnCv.get({ username: queryUserName })
+	let cv = await fnCv.get({ username: queryUserName })
 		.catch(error => sendError(error, 500));
 
 	if (!user || !cv) {
