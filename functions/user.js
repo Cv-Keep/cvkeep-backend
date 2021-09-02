@@ -26,7 +26,6 @@ module.exports = {
 			if (options.sanitize) {
 				[
 					'password',
-					'hasPassword',
 					'confirm_password',
 					'pendingUrlActions',
 				].forEach(item => {
