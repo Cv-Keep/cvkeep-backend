@@ -54,7 +54,7 @@ module.exports = async (req, res) => {
 		actionUrl,
 		locale: res.i18n.locale,
 		template: 'deactivate-account',
-		subject: rest.i18n.t('deactivateAccount'),
+		subject: res.i18n.t('deactivateAccount'),
 	}).catch(error => sendError(error, 500));
 
 	res.status(200).json({
