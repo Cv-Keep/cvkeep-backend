@@ -7,7 +7,7 @@ module.exports = {
 	newPassword: 'New password',
 	deactivateAccount: 'Deactivate account',
 	changeUsername: 'Change username',
-	changeEmail: 'Change E-mail',	
+	changeEmail: 'Change E-mail',
 
 	success: {
 		usernameAvailable: 'This username is available',
