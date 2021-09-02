@@ -35,16 +35,7 @@ module.exports = {
 			}
 
 			Credentials.findOne(query, select, (error, credentials) => {
-				if (error) {
-					reject(error);
-					return false;
-				}
-
-				if (credentials) {
-					credentials.hasPassword = !!credentials.password;
-				}
-
-				resolve(credentials);
+				error ? reject(error) : resolve(credentials);
 			});
 		});
 	},
@@ -206,7 +197,8 @@ module.exports = {
 
 	changePassword(email, newPassword) {
 		newPassword = this.encodePassword(newPassword);
-		return this.update(email, { password: newPassword });
+
+		return this.update(email, { password: newPassword, hasPassword: true });
 	},
 
 	changeUsername(currentUserEmail, newUsername) {
