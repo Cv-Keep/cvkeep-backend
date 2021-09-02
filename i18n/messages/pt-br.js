@@ -4,6 +4,10 @@ module.exports = {
 	changePassword: 'Trocar a senha',
 	createPassword: 'Criar uma senha',
 	newContact: 'Novo contato',
+	newPassword: 'Nova senha',
+	deactivateAccount: 'Desativar conta',
+	changeUsername: 'Trocar nome de usuário',
+	changeEmail: 'Trocar de E-Mail',
 
 	success: {
 		usernameAvailable: 'Este nome de usuário está disponível',

@@ -71,7 +71,7 @@ module.exports = async (req, res) => {
 		to: currentUserEmail,
 		locale: res.i18n.locale,
 		template: 'change-username',
-		subject: `Trocar nome de usuário`,
+		subject: res.i18n.t('changeUsername'),
 		actionUrl,
 		newUsername,
 		currentUsername,

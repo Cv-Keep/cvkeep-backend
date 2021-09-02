@@ -73,7 +73,7 @@ module.exports = async (req, res) => {
 	fnEmail.send({
 		to: userEmail,
 		template: 'change-email',
-		subject: `Trocar de E-Mail`,
+		subject: res.i18n.t('changeEmail'),
 		actionUrl,
 		newEmail,
 		userEmail,

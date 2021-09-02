@@ -232,10 +232,10 @@ module.exports = {
 				if (!error) {
 					fnEmail.send({
 						to: email,
-						subject: 'Nova Senha',
-						template: 'forgotpass',
 						hash: hash,
+						template: 'forgotpass',
 						locale: res.i18n.locale,
+						subject: res.i18n.t('newPassword'),
 					}).catch(error => log('error', error));
 
 					resolve({ ok: true, errors: false });
