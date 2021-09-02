@@ -77,6 +77,7 @@ module.exports = async (req, res) => {
 
 			const createdUser = await fnUser.create({
 				active: true,
+				hasPassword: true,
 				cvId: createdCv._id,
 				username: credentials.username,
 				email: newUser.registering.email,
