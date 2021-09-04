@@ -50,7 +50,7 @@ module.exports = {
 					.catch(error => log('error', error));
 
 				if (data.basics && data.basics.fullname) {
-					Credentials.updateOne({ email }, { $set: { fullname: cv.basics.fullname } })
+					Credentials.updateOne({ email }, { $set: { fullname: data.basics.fullname } })
 						.catch(error => log('error', error));
 				}
 
