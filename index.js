@@ -9,39 +9,41 @@ const bearerToken = require('express-bearer-token');
 const i18n = require('./i18n');
 const cors = require('./cors.js');
 const log = require('logflake')('app');
+const jwt = require('./functions/jwt/');
 
-/** database & crons */
+(async () => {
+	/** database & crons */
 
-require('./database/');
-require('./cronjobs');
+	require('./database/');
+	require('./cronjobs');
 
-/** app && /status **/
+	/** app && /status **/
 
-const app = express();
-const routes = require('./endpoints/routes.js');
+	const app = express();
+	const routes = require('./endpoints/routes.js');
 
-cors.guard(app);
+	await jwt.registerRSA();
+	cors.guard(app);
 
-app.use(helmet());
-app.use(bearerToken());
-app.use(i18n.middleware);
-app.use(gzip());
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
-app.use(cookieParser(config.secret));
-app.use(fileUploader({ createParentPath: true }));
-app.use(config.base, routes);
+	app.use(helmet());
+	app.use(bearerToken());
+	app.use(i18n.middleware);
+	app.use(gzip());
+	app.use(bodyParser.json({ limit: '50mb' }));
+	app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+	app.use(cookieParser(config.secret));
+	app.use(fileUploader({ createParentPath: true }));
+	app.use(config.base, routes);
 
-/** init **/
+	/** init **/
 
-if (config.stage === 'test') {
-	app.fn = require('./functions/');
+	if (config.stage === 'test') {
+		module.exports = app;
+	} else {
+		app.listen(config.port, () => {
+			const stage = config.stage || 'development';
 
-	module.exports = app;
-} else {
-	app.listen(config.port, () => {
-		/* eslint-disable max-len */
-		log('info', `Server is running with stage "${ config.stage || 'development' }" on port ${config.port }\nEnv from: "${config.envPath}" `);
-		/* eslint-enable max-len */
-	});
-}
+			log('info', `Server is running with stage "${stage}" on port ${config.port }\nEnv: ${config.envPath}`);
+		});
+	}
+})();

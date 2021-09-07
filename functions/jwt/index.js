@@ -1,31 +1,43 @@
-const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const config = require('./../../config');
+const config = require('../../config');
+const log = require('logflake')('jwt');
+const jwtRsa = require('./jwtRsa.js');
 
-const PUBLIC_KEY = fs.readFileSync(config.rsa.public, 'utf8');
-const PRIVATE_KEY = fs.readFileSync(config.rsa.private, 'utf8');
+/**
+ * This file exports a singleton. It is initialized on app root (/index.js).
+ * THis is the JWT Handler. It reads the db jwtsecrets collection for an RSA
+ * key pair. If does not exists, will created and store a new one. After that,
+ * the key pair is stored on the singleton and use to enc|dec new JWT tokens.
+ */
+class JwtHandler {
+	constructor() {
+		this.JWTRSA = undefined;
+	}
 
-const JWT_OPTIONS = {
-	issuer: `${config.brandName} Auth Sys`,
-	expiresIn: '365d',
-	algorithm: 'RS256',
-};
+	async registerRSA() {
+		this.JWTRSA = await jwtRsa.getJwtRSAKeys()
+			.catch(error => log(`Could not retrieve a valid JWT RSA key pair`, error));
+	}
 
-module.exports = {
+	decode(token) {
+		return jwt.decode(token, { complete: true });
+	}
 
-	sign: payload => {
-		return jwt.sign(payload, PRIVATE_KEY, JWT_OPTIONS);
-	},
+	sign(payload) {
+		return jwt.sign(payload, this.JWTRSA.privateKey, {
+			issuer: `${config.brandName} Auth Sys`,
+			expiresIn: '365d',
+			algorithm: 'RS256',
+		});
+	}
 
-	verify: (token) => {
+	verify(token) {
 		return new Promise((resolve, reject) => {
-			jwt.verify(token, PUBLIC_KEY, (error, decoded) => {
+			jwt.verify(token, this.JWTRSA.publicKey, (error, decoded) => {
 				error ? reject(error) : resolve(decoded);
 			});
 		});
-	},
+	}
+}
 
-	decode: token => {
-		return jwt.decode(token, { complete: true });
-	},
-};
+module.exports = new JwtHandler();

@@ -41,10 +41,13 @@ module.exports = {
 		});
 	},
 
-	getLoggedUser(req) {
+	async getLoggedUser(req) {
 		const token = req.signedCookies[config.jwtCookieName];
 
-		return token ? jwt.verify(token) : null;
+		return token && await this.verifyToken(token)
+			.catch(error => {
+				log('error', `Error while verifying token: `, error);
+			});
 	},
 
 	signOut(res, statusCode = 200) {
