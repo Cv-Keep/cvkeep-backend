@@ -28,12 +28,12 @@ const CurriculumSchema = new mongoose.Schema({
 		role: { type: String, default: '' },
 	},
 	location: {
-		country: { type: String, default: 'Brasil'},
-		region: { type: String, default: 'SP' },
-		city: { type: String, default: 'São Paulo' },
+		country: { type: String, default: ''},
+		region: { type: String, default: '' },
+		city: { type: String, default: '' },
 	},
 	contact: {
-		primaryNumber: { type: String, default: '+55 (11) 988880000' },
+		primaryNumber: { type: String, default: '' },
 		primaryNumberKind: { type: String, default: 'cellphone' },
 	},
 	presentation: {
