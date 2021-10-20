@@ -28,7 +28,7 @@ module.exports = {
 				});
 
 				resolve({
-					token,	
+					token,
 					logged: true,
 					messages: [],
 					user: credentials,
