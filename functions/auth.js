@@ -28,7 +28,7 @@ module.exports = {
 				});
 
 				resolve({
-					jwt: token,
+					token,	
 					logged: true,
 					messages: [],
 					user: credentials,
@@ -42,7 +42,7 @@ module.exports = {
 	},
 
 	async getLoggedUser(req) {
-		const token = req.signedCookies[config.jwtCookieName];
+		const token = req.signedCookies[config.jwtCookieName] || req.token;
 
 		return token && await this.verifyToken(token)
 			.catch(error => {
