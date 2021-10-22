@@ -136,7 +136,7 @@ module.exports = {
 				}
 
 				const total = await CvSearchIndex
-					.find(match).estimatedDocumentCount();
+					.find(match).countDocuments();
 
 				resolve({ result: docs, count: total });
 			});
