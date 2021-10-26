@@ -25,6 +25,11 @@ module.exports = async (req, res) => {
 		return sendError('error.youHaveNoPermission', errorDetails, 403);
 	}
 
+	if (curriculum.contact && curriculum.contact.primaryNumber) {
+		// validates that a phone number has only [0-9] and " ", *#-() chars
+		curriculum.contact.primaryNumber = curriculum.contact.primaryNumber.replace(/[^\d.\-\(\)\+\#\*\ ]/g, '');
+	}
+
 	fnCv.update(loggedUser.email, curriculum)
 		.then(() => res.status(200).json({ errors: false, saved: true }))
 		.catch(error => {
