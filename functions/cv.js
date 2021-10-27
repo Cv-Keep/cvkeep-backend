@@ -79,7 +79,7 @@ module.exports = {
 			// validates that a phone number has only [0-9] and " ", *#-() chars
 			curriculum.contact.primaryNumber = curriculum.contact.primaryNumber.replace(/[^\d.\-\(\)\+\#\*\ ]/g, '');
 		}
-	}
+	},
 
 	incViewCounter(email) {
 		Curriculum.findOneAndUpdate({ email: email }, { $inc: { views: 1 } });
