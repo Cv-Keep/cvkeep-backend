@@ -70,6 +70,17 @@ module.exports = {
 		};
 	},
 
+	sanitizeEditableCv(curriculum) {
+		if (!curriculum || typeof curriculum !== 'object') {
+			return curriculum;
+		}
+
+		if (curriculum.contact && curriculum.contact.primaryNumber) {
+			// validates that a phone number has only [0-9] and " ", *#-() chars
+			curriculum.contact.primaryNumber = curriculum.contact.primaryNumber.replace(/[^\d.\-\(\)\+\#\*\ ]/g, '');
+		}
+	}
+
 	incViewCounter(email) {
 		Curriculum.findOneAndUpdate({ email: email }, { $inc: { views: 1 } });
 	},

@@ -3,7 +3,7 @@ const { fnCv } = require('../../../functions/');
 
 module.exports = async (req, res) => {
 	const loggedUser = req.$user;
-	const curriculum = req.body.curriculum;
+	const curriculum = fnCv.sanitizeCv(req.body.curriculum);
 	const isValidLoggedUser = loggedUser && loggedUser.email && loggedUser.username;
 	const isValidCurriculum = curriculum && curriculum.username && (loggedUser.username === curriculum.username);
 
@@ -23,11 +23,6 @@ module.exports = async (req, res) => {
 		};
 
 		return sendError('error.youHaveNoPermission', errorDetails, 403);
-	}
-
-	if (curriculum.contact && curriculum.contact.primaryNumber) {
-		// validates that a phone number has only [0-9] and " ", *#-() chars
-		curriculum.contact.primaryNumber = curriculum.contact.primaryNumber.replace(/[^\d.\-\(\)\+\#\*\ ]/g, '');
 	}
 
 	fnCv.update(loggedUser.email, curriculum)
