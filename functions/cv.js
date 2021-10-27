@@ -70,9 +70,9 @@ module.exports = {
 		};
 	},
 
-	sanitizeCvOnSave(curriculum) {
-		if (!curriculum || typeof curriculum !== 'object') {
-			return curriculum;
+	sanitizeCvOnSave(cv) {
+		if (!cv || typeof cv !== 'object') {
+			return cv;
 		}
 
 		const nonEditables = [
@@ -82,25 +82,27 @@ module.exports = {
 			'created',
 			'username',
 		];
-		
+
 		nonEditables.forEach(item => {
-			delete curriculum[item];
+			delete cv[item];
 		});
 
 		// validates that a phone number has only [0-9] and " ", *#-() chars
-		if (curriculum.contact && curriculum.contact.primaryNumber) {
-			curriculum.contact.primaryNumber = curriculum.contact.primaryNumber.replace(/[^\d.\-\(\)\+\#\*\ ]/g, '');
+		if (cv.contact && cv.contact.primaryNumber) {
+			cv.contact.primaryNumber = cv.contact.primaryNumber.replace(/[^\d.\-\(\)\+\#\*\ ]/g, '');
 		}
-		
+
 		// background values must start with the given pathname
 		if (cv.background && cv.background.trim().indexOf('/img/backgrounds/') !== 0) {
 			cv.background = '';
 		}
 
 		// validation for civil states
-		if (!['doNotInform', 'married', 'single', 'divorced'].includes(curriculum.civilState)) {
-			curriculum.civilState = 'doNotInform';
+		if (!['doNotInform', 'married', 'single', 'divorced'].includes(cv.civilState)) {
+			cv.civilState = 'doNotInform';
 		}
+
+		return cv;
 	},
 
 	incViewCounter(email) {

@@ -3,7 +3,7 @@ const { fnCv } = require('../../../functions/');
 
 module.exports = async (req, res) => {
 	const loggedUser = req.$user;
-	const curriculum = fnCv.sanitizeCvOnSave(req.body.curriculum);
+	const curriculum = req.body.curriculum;
 	const isValidLoggedUser = loggedUser && loggedUser.email && loggedUser.username;
 	const isValidCurriculum = curriculum && curriculum.username && (loggedUser.username === curriculum.username);
 
@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
 		return sendError('error.youHaveNoPermission', errorDetails, 403);
 	}
 
-	fnCv.update(loggedUser.email, curriculum)
+	fnCv.update(loggedUser.email, fnCv.sanitizeCvOnSave(curriculum))
 		.then(() => res.status(200).json({ errors: false, saved: true }))
 		.catch(error => {
 			log('error', error);
