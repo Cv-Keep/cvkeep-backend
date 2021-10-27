@@ -70,14 +70,31 @@ module.exports = {
 		};
 	},
 
-	sanitizeEditableCv(curriculum) {
+	sanitizeCvOnSave(curriculum) {
 		if (!curriculum || typeof curriculum !== 'object') {
 			return curriculum;
 		}
 
+		const nonEditables = [
+			'views',
+			'email',
+			'editing',
+			'created',
+			'username',
+		];
+		
+		nonEditables.forEach(item => {
+			delete curriculum[item];
+		});
+
+		// validates that a phone number has only [0-9] and " ", *#-() chars
 		if (curriculum.contact && curriculum.contact.primaryNumber) {
-			// validates that a phone number has only [0-9] and " ", *#-() chars
 			curriculum.contact.primaryNumber = curriculum.contact.primaryNumber.replace(/[^\d.\-\(\)\+\#\*\ ]/g, '');
+		}
+		
+		// background values must start with the given pathname
+		if (cv.background && cv.background.trim().indexOf('/img/backgrounds/') !== 0) {
+			cv.background = '';
 		}
 	},
 

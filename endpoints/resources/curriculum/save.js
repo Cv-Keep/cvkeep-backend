@@ -3,7 +3,7 @@ const { fnCv } = require('../../../functions/');
 
 module.exports = async (req, res) => {
 	const loggedUser = req.$user;
-	const curriculum = fnCv.sanitizeCv(req.body.curriculum);
+	const curriculum = fnCv.sanitizeCvOnSave(req.body.curriculum);
 	const isValidLoggedUser = loggedUser && loggedUser.email && loggedUser.username;
 	const isValidCurriculum = curriculum && curriculum.username && (loggedUser.username === curriculum.username);
 
