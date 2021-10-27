@@ -96,6 +96,11 @@ module.exports = {
 		if (cv.background && cv.background.trim().indexOf('/img/backgrounds/') !== 0) {
 			cv.background = '';
 		}
+
+		// validation for civil states
+		if (!['doNotInform', 'married', 'single', 'divorced'].includes(curriculum.civilState)) {
+			curriculum.civilState = 'doNotInform';
+		}
 	},
 
 	incViewCounter(email) {
