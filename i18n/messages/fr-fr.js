@@ -51,7 +51,7 @@ module.exports = {
 		failToChangeLanguage: 'Impossible de changer de langue',
 		passwordMinLength: 'Le mot de passe doit comporter au moins 8 (huit) caractères.',
 		notEnoughDataOrMalformedRequest: 'Données insuffisantes ou demande malformée',
-		invalidActionOrMalformedAction : "Action non valide ou demande malformée",
+		invalidActionOrMalformedAction: 'Action non valide ou demande malformée',
 		incorrectCurrentPassword: 'Le mot de passe actuel est incorrect',
 		mustDefinePasswordToAlterEmail: 'Vous devez définir un mot de passe d\'utilisateur avant de changer votre adresse e-mail',
 		mustCreatePasswordToDoIt: 'Vous devez définir un mot de passe utilisateur avant d\'effectuer cette action.',

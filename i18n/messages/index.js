@@ -5,5 +5,5 @@ const frFr = require('./fr-fr.js');
 module.exports = {
 	'en': en,
 	'pt-br': ptBr,
-	'fr-fr': frFr
+	'fr-fr': frFr,
 };
