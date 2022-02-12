@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Cv Keep REST API",
   "main": "main.js",
+  "engines": {
+    "node": "14.x"
+  },
   "scripts": {
     "lint": "eslint .",
     "serve": "npm run lint && NODE_ENV=$npm_config_stage nodemon index.js",
