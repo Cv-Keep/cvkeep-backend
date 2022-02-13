@@ -33,6 +33,7 @@ const CurriculumSchema = new mongoose.Schema({
 		city: { type: String, default: '' },
 	},
 	contact: {
+		publicEmail: { type: String, default: '' },
 		primaryNumber: { type: String, default: '' },
 		primaryNumberKind: { type: String, default: 'cellphone' },
 	},
