@@ -106,6 +106,6 @@ module.exports = {
 	},
 
 	incViewCounter(email) {
-		Curriculum.findOneAndUpdate({ email: email }, { $inc: { views: 1 } });
+		Curriculum.findOneAndUpdate({ email: email }, { $inc: { views: 1 } }).exec();
 	},
 };
