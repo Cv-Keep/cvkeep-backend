@@ -28,7 +28,7 @@ const CurriculumSchema = new mongoose.Schema({
 		role: { type: String, default: '' },
 	},
 	location: {
-		country: { type: String, default: ''},
+		country: { type: String, default: 'Country'},
 		region: { type: String, default: '' },
 		city: { type: String, default: '' },
 	},

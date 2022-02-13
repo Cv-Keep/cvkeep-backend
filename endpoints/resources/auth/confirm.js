@@ -72,6 +72,7 @@ module.exports = async (req, res) => {
 			const createdCv = await fnCv.create({
 				username: credentials.username,
 				email: newUser.registering.email,
+				contact: { publicEmail: newUser.registering.email },
 			})
 				.catch(sendError);
 

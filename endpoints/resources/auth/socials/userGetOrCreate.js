@@ -30,6 +30,7 @@ module.exports = (email) => {
 				active: true,
 				username: userName,
 				cvId: createdCv._id,
+				contact: { publicEmail: email },
 			}).catch(reject);
 
 			if (!user && !createdCv) {
