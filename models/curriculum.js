@@ -12,7 +12,7 @@ const CurriculumSchema = new mongoose.Schema({
 	background: { type: String, default: '' },
 	sections: { type: Array },
 	hiddenSections: { type: Array },
-	civilState: { type: String, default: 'single' },
+	civilState: { type: String, default: 'doNotInform' },
 	allowPublicMessages: { type: Boolean, default: true },
 	passwordProtected: { type: Boolean, default: false },
 	locked: { type: Boolean, default: false },
