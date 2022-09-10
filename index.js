@@ -6,7 +6,7 @@ const gzip = require('compression');
 const helmet = require('helmet');
 const fileUploader = require('express-fileupload');
 const bearerToken = require('express-bearer-token');
-const i18n = require('./i18n');
+// const i18n = require('./i18n');
 const cors = require('./cors.js');
 const log = require('logflake')('app');
 const jwt = require('./functions/jwt/');
@@ -27,7 +27,7 @@ const jwt = require('./functions/jwt/');
 
 	app.use(helmet());
 	app.use(bearerToken());
-	app.use(i18n.middleware);
+	// app.use(i18n.middleware);
 	app.use(gzip());
 	app.use(bodyParser.json({ limit: '50mb' }));
 	app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
