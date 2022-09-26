@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
-const stage = process.env.NODE_ENV || '';
+const stage = process.env.NODE_ENV == '$npm_config_stage' ? 'local' : process.env.NODE_ENV || '';
 
 module.exports = {
 	getEnv(debug = false) {
@@ -9,12 +9,11 @@ module.exports = {
 		const envPath = this.getEnvPath();
 		const envContent = this.getEnvContent(envPath);
 		const dotEnv = this.parseEnv(envContent, debug);
-
 		return Object.assign(env, dotEnv);
 	},
 
 	getEnvPath() {
-		const useDotLocal = !stage && fs.existsSync(path.resolve(__dirname, '..', `.env.local`));
+		const useDotLocal = stage == 'local' && fs.existsSync(path.resolve(__dirname, '..', `.env.local`));
 		const envFileName = useDotLocal ? '.env.local' : `.env${ stage ? '.' + stage : '' }`;
 
 		return path.resolve(__dirname, '..', envFileName);

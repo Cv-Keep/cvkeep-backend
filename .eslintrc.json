@@ -9,7 +9,8 @@
         "object-curly-spacing": 0,
         "indent": ["error", "tab"],
         "prefer-promise-reject-errors": 0,
-        "max-len": ["error", { "code": 120 }]
+        "max-len": ["error", { "code": 120 }],
+        "linebreak-style": 0
     },
 
     "parserOptions": {
