@@ -13,6 +13,8 @@ const guard = require('./resources/auth/guard');
 const routes = require('express').Router();
 
 const route = (type, url, resource) => {
+	console.log("A new request received at " + Date.now() + " => " + url);
+
 	const _guard = (type === 'logged' ? guard : (req, res, next) => next());
 
 	if (type === 'logged' || config.stage === 'development') {
