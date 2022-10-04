@@ -7,6 +7,7 @@
     "node": "14.x"
   },
   "scripts": {
+    "start": "nodemon index.js",
     "lint": "eslint .",
     "serve": "npm run lint && NODE_ENV=$npm_config_stage nodemon index.js",
     "serve:debug": "DEBUG=express:* npm run serve",

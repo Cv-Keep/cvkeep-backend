@@ -16,7 +16,7 @@ module.exports = {
 	jwtCookieName: env.JWT_COOKIE_NAME,
 	mailer: JSON.parse(env.MAILER_CONFIG),
 	appBaseDir: path.resolve(__dirname, '..'),
-	port: process.env.PORT || Number(env.PORT),
+	port: 5000,
 	reportEmailAddress: env.REPORT_EMAIL_ADDRESS,
 	extraAllowedOrigins: env.EXTRA_ALLOWED_ORIGINS,
 	noReplyEmailAddress: env.NOREPLY_EMAIL_ADDRESS,

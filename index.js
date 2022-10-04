@@ -43,7 +43,7 @@ const jwt = require('./functions/jwt/');
 		app.listen(config.port, () => {
 			const stage = config.stage || 'development';
 
-			log('info', `Server is running with stage "${stage}" on port ${config.port }\nEnv: ${config.envPath}`);
+			log('info', `Server is running with stage "${stage}" on port ${config.port }\nEnv: ${config.envPath} \n allowed origins: ${config.clientURL}`);
 		});
 	}
 })();
