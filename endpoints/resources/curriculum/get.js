@@ -44,7 +44,7 @@ module.exports = async (req, res) => {
 		}
 	}
 
-	delete cv.email;
+	cv.email = undefined;
 	cv.lang = user.lang;
 
 	return res.status(200).json(fnBadwords.cleanObject(cv));
