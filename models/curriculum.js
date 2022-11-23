@@ -40,34 +40,42 @@ const CurriculumSchema = new mongoose.Schema({
 	presentation: {
 		max_length: { type: Number, default: 500 },
 		description: { type: String, default: '' },
+		customTitle: { type: String, default: '' },
 	},
 	education: {
 		items: { type: Array },
 		introduction: { type: String, default: '' },
+		customTitle: { type: String, default: '' },
 	},
 	languages: {
 		items: { type: Array },
 		introduction: { type: String, default: '' },
+		customTitle: { type: String, default: '' },
 	},
 	experience: {
 		items: { type: Array },
 		introduction: { type: String, default: '' },
+		customTitle: { type: String, default: '' },
 	},
 	skills: {
 		items: { type: Array },
 		introduction: { type: String, default: '' },
+		customTitle: { type: String, default: '' },
 	},
 	prizes: {
 		items: { type: Array },
 		introduction: { type: String, default: '' },
+		customTitle: { type: String, default: '' },
 	},
 	portfolio: {
 		items: { type: Array },
 		introduction: { type: String, default: '' },
+		customTitle: { type: String, default: '' },
 	},
 	links: {
 		items: { type: Array },
 		introduction: { type: String, default: '' },
+		customTitle: { type: String, default: '' },
 	},
 });
 
