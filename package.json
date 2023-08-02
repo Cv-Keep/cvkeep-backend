@@ -8,7 +8,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "serve": "npm run lint && NODE_ENV=$npm_config_stage nodemon index.js",
+    "serve": "npm run lint && nodemon index.js",
     "serve:debug": "DEBUG=express:* npm run serve",
     "heroku:create": "sh ./sh/heroku-create.sh",
     "heroku:setenv": "sh ./sh/heroku-setenv.sh"

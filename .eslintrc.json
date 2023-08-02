@@ -6,6 +6,7 @@
         "valid-jsdoc": 0,
         "arrow-parens": 0,
         "require-jsdoc": 0,
+        "linebreak-style": 0,
         "object-curly-spacing": 0,
         "indent": ["error", "tab"],
         "prefer-promise-reject-errors": 0,
